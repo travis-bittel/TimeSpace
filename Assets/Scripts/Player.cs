@@ -70,6 +70,27 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Rigidbody2D rb;
 
+    public float DodgeRollSpeedMultiplier { get { return _dodgeRollSpeedMultiplier; } }
+    [SerializeField]
+    private float _dodgeRollSpeedMultiplier;
+
+    public float DodgeRollDuration { get { return _dodgeRollDuration; } }
+    [SerializeField]
+    private float _dodgeRollDuration;
+
+    public bool IsRolling
+    {
+        get { return _isRolling; }
+    }
+    [SerializeField]
+    private bool _isRolling;
+
+    /// <summary>
+    /// During the Dodge Roll, the latest input is stored. At the end of the roll, the player's velocity is set to that value to create a smoother player experience.
+    /// </summary>
+    [SerializeField]
+    private Vector2 storedVelocity;
+
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
     /// </summary>
@@ -88,10 +109,54 @@ public class Player : MonoBehaviour
     /// </summary>
     private void OnMove(InputValue value)
     {
-        if (_canMove)
+        // If we are rolling, store the input for use after the roll ends.
+        if (_isRolling)
         {
-            _velocity = value.Get<Vector2>() * _speed;
+            storedVelocity = value.Get<Vector2>();
+        } else if (_canMove)
+        {
+            _velocity = value.Get<Vector2>();
         }
+    }
+
+    private void OnDodgeRoll(InputValue value)
+    {
+        StartCoroutine(DodgeRoll());
+    }
+
+    private IEnumerator DodgeRoll()
+    {
+        storedVelocity = _velocity;
+        _isInvulnerable = true;
+        _isRolling = true;
+        // Default direction if no movement is held. Should be the player's facing direction.
+        // For now just make it whatever.
+        if (_velocity == Vector2.zero)
+        {
+            _velocity = Vector2.up;
+        }
+
+        // Double movement speed during roll
+        _velocity *= _dodgeRollSpeedMultiplier;
+        float timePassed = 0;
+        while (timePassed < _dodgeRollDuration)
+        {
+            rb.position += _velocity * _speed * Time.deltaTime;
+            timePassed += Time.deltaTime;
+            yield return null;
+        }
+
+        // See storedVelocity for an explanation
+        if (storedVelocity != Vector2.zero)
+        {
+            _velocity = storedVelocity;
+        } else
+        {
+            _velocity = Vector2.zero;
+        }
+        storedVelocity = Vector2.zero;
+        _isInvulnerable = false;
+        _isRolling = false;
     }
 
     // Start is called before the first frame update

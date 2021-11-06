@@ -20,6 +20,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "DodgeRoll",
+                    "type": "Button",
+                    "id": "e7b57c08-0c68-4b2b-aec5-ad0fef8bcf5f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -207,6 +215,17 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "83d68065-70d6-42f2-8179-45ca810a5dfd",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DodgeRoll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
