@@ -62,6 +62,7 @@ public class Player : MonoBehaviour
 
     /// <summary>
     /// Current velocity of the player. Updated when a move input is made or released and applied to position each frame in FixedUpdate.
+    /// This is really more like the player's direction — it doesn't account for their speed multiplier.
     /// </summary>
     public Vector2 Velocity { get { return _velocity; } }
     [SerializeField]
@@ -92,6 +93,18 @@ public class Player : MonoBehaviour
     private Vector2 storedVelocity;
 
     /// <summary>
+    /// The Rewind point the player saved when using the first cast of Rewind.
+    /// Null indicates that the player does not have a Rewind point saved.
+    /// </summary>
+    private RewindSavePoint rewindSavePoint;
+
+    /// <summary>
+    /// Visual marker for the player's Rewind location.
+    /// </summary>
+    [SerializeField]
+    private GameObject rewindMarker;
+
+    /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
     /// </summary>
     /// <param name="amount"></param>
@@ -119,7 +132,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnDodgeRoll(InputValue value)
+    private void OnDodgeRoll()
     {
         StartCoroutine(DodgeRoll());
     }
@@ -159,6 +172,23 @@ public class Player : MonoBehaviour
         _isRolling = false;
     }
 
+    private void OnRewind()
+    {
+        // Set point if not set, otherwise travel to it
+        if (rewindSavePoint == null)
+        {
+            rewindSavePoint = new RewindSavePoint(transform.position, 0);
+            rewindMarker.transform.position = transform.position;
+            rewindMarker.SetActive(true);
+        } else
+        {
+            transform.position = rewindSavePoint.position;
+            // <Set ammo count here>
+            rewindSavePoint = null;
+            rewindMarker.SetActive(false);
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -171,9 +201,9 @@ public class Player : MonoBehaviour
                 Debug.LogError("No Rigidbody2D found on Player");
             }
         }
-        if (_speed == Vector2.zero)
+        if (rewindMarker == null)
         {
-            Debug.LogWarning("Player Speed set to 0");
+            Debug.LogWarning("Rewind Marker was null at start");
         }
         if (!_canMove)
         {
@@ -188,5 +218,21 @@ public class Player : MonoBehaviour
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+    }
+
+    /// <summary>
+    /// Stores a Vector2 position and int ammoCount. These values are what the player will be restored to when rewinding to this point.
+    /// The player will store 3 of these at all times — one for each charge of Rewind they can hold.
+    /// </summary>
+    private class RewindSavePoint
+    {
+        public Vector2 position;
+        public int ammoCount;
+
+        public RewindSavePoint(Vector2 position, int ammoCount = 0)
+        {
+            this.position = position;
+            this.ammoCount = ammoCount;
+        }
     }
 }
