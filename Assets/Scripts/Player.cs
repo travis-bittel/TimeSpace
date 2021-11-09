@@ -222,6 +222,11 @@ public class Player : MonoBehaviour
         rb.position += _velocity * _speed * Time.deltaTime;
     }
 
+    /// <summary>
+    /// For now, this is just a super rough demo of shooting with 1 bullet that gets moved around.
+    /// Odds are the multi-gun system will make significant changes here, so I don't see the point
+    /// in spending too much time polishing this up.
+    /// </summary>
     private void OnFire()
     {
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
@@ -234,7 +239,7 @@ public class Player : MonoBehaviour
         test.transform.position = transform.position;
 
 
-        test.GetComponent<Rigidbody2D>().velocity = direction * -2000f * Time.deltaTime;
+        test.GetComponent<Rigidbody2D>().velocity = direction * -20f;
     }
 
     /// <summary>
