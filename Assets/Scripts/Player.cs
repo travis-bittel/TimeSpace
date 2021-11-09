@@ -79,6 +79,15 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _dodgeRollDuration;
 
+    /// <summary>
+    /// Cooldown between uses of Dodge Roll. The cooldown starts as soon as the roll is complete.
+    /// </summary>
+    public float DodgeRollCooldown { get { return _dodgeRollCooldown; } }
+    [SerializeField]
+    private float _dodgeRollCooldown;
+
+    private float currentDodgeRollCooldownRemaining;
+
     public bool IsRolling
     {
         get { return _isRolling; }
@@ -91,6 +100,15 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Vector2 storedVelocity;
+
+    /// <summary>
+    /// Cooldown between uses of Rewind. The cooldown starts when the player teleports back to the marker position.
+    /// </summary>
+    public float RewindCooldown { get { return _rewindCooldown; } }
+    [SerializeField]
+    private float _rewindCooldown;
+
+    private float currentRewindCooldownRemaining;
 
     /// <summary>
     /// The Rewind point the player saved when using the first cast of Rewind.
@@ -136,7 +154,10 @@ public class Player : MonoBehaviour
 
     private void OnDodgeRoll()
     {
-        StartCoroutine(DodgeRoll());
+        if (currentDodgeRollCooldownRemaining <= 0)
+        {
+            StartCoroutine(DodgeRoll());
+        }
     }
 
     private IEnumerator DodgeRoll()
@@ -172,22 +193,30 @@ public class Player : MonoBehaviour
         storedVelocity = Vector2.zero;
         _isInvulnerable = false;
         _isRolling = false;
+        // We start the cooldown after the roll is complete
+        currentDodgeRollCooldownRemaining = _dodgeRollCooldown;
     }
 
     private void OnRewind()
     {
-        // Set point if not set, otherwise travel to it
-        if (rewindSavePoint == null)
+        if (currentRewindCooldownRemaining <= 0)
         {
-            rewindSavePoint = new RewindSavePoint(transform.position, 0);
-            rewindMarker.transform.position = transform.position;
-            rewindMarker.SetActive(true);
-        } else
-        {
-            transform.position = rewindSavePoint.position;
-            // <Set ammo count here>
-            rewindSavePoint = null;
-            rewindMarker.SetActive(false);
+            // Set point if not set, otherwise travel to it
+            if (rewindSavePoint == null)
+            {
+                rewindSavePoint = new RewindSavePoint(transform.position, 0);
+                rewindMarker.transform.position = transform.position;
+                rewindMarker.SetActive(true);
+            }
+            else
+            {
+                transform.position = rewindSavePoint.position;
+                // <Set ammo count here>
+                rewindSavePoint = null;
+                rewindMarker.SetActive(false);
+                // We start the cooldown after the player teleports to the marker
+                currentRewindCooldownRemaining = _rewindCooldown;
+            }
         }
     }
 
@@ -220,6 +249,25 @@ public class Player : MonoBehaviour
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+
+        #region Cooldowns
+        if (currentDodgeRollCooldownRemaining > 0)
+        {
+            currentDodgeRollCooldownRemaining -= Time.deltaTime;
+            if (currentDodgeRollCooldownRemaining < 0)
+            {
+                currentDodgeRollCooldownRemaining = 0;
+            }
+        }
+        if (currentRewindCooldownRemaining > 0)
+        {
+            currentRewindCooldownRemaining -= Time.deltaTime;
+            if (currentRewindCooldownRemaining < 0)
+            {
+                currentRewindCooldownRemaining = 0;
+            }
+        }
+        #endregion
     }
 
     /// <summary>
