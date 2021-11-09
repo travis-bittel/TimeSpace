@@ -104,6 +104,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject rewindMarker;
 
+    public GameObject test;
+
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
     /// </summary>
@@ -218,6 +220,21 @@ public class Player : MonoBehaviour
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+    }
+
+    private void OnFire()
+    {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
+        direction.Normalize();
+
+        Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
+
+        test.transform.rotation = rotation;
+        test.transform.position = transform.position;
+
+
+        test.GetComponent<Rigidbody2D>().velocity = direction * -2000f * Time.deltaTime;
     }
 
     /// <summary>

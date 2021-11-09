@@ -19,7 +19,7 @@
                     "id": "b5ae367f-a660-44b8-89a5-b18f2668ca3a",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press"
                 },
                 {
                     "name": "DodgeRoll",
