@@ -62,6 +62,7 @@ public class Player : MonoBehaviour
 
     /// <summary>
     /// Current velocity of the player. Updated when a move input is made or released and applied to position each frame in FixedUpdate.
+    /// This is really more like the player's direction — it doesn't account for their speed multiplier.
     /// </summary>
     public Vector2 Velocity { get { return _velocity; } }
     [SerializeField]
@@ -69,6 +70,41 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private Rigidbody2D rb;
+
+    public float DodgeRollSpeedMultiplier { get { return _dodgeRollSpeedMultiplier; } }
+    [SerializeField]
+    private float _dodgeRollSpeedMultiplier;
+
+    public float DodgeRollDuration { get { return _dodgeRollDuration; } }
+    [SerializeField]
+    private float _dodgeRollDuration;
+
+    public bool IsRolling
+    {
+        get { return _isRolling; }
+    }
+    [SerializeField]
+    private bool _isRolling;
+
+    /// <summary>
+    /// During the Dodge Roll, the latest input is stored. At the end of the roll, the player's velocity is set to that value to create a smoother player experience.
+    /// </summary>
+    [SerializeField]
+    private Vector2 storedVelocity;
+
+    /// <summary>
+    /// The Rewind point the player saved when using the first cast of Rewind.
+    /// Null indicates that the player does not have a Rewind point saved.
+    /// </summary>
+    private RewindSavePoint rewindSavePoint;
+
+    /// <summary>
+    /// Visual marker for the player's Rewind location.
+    /// </summary>
+    [SerializeField]
+    private GameObject rewindMarker;
+
+    public GameObject test;
 
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
@@ -88,9 +124,70 @@ public class Player : MonoBehaviour
     /// </summary>
     private void OnMove(InputValue value)
     {
-        if (_canMove)
+        // If we are rolling, store the input for use after the roll ends.
+        if (_isRolling)
         {
-            _velocity = value.Get<Vector2>() * _speed;
+            storedVelocity = value.Get<Vector2>();
+        } else if (_canMove)
+        {
+            _velocity = value.Get<Vector2>();
+        }
+    }
+
+    private void OnDodgeRoll()
+    {
+        StartCoroutine(DodgeRoll());
+    }
+
+    private IEnumerator DodgeRoll()
+    {
+        storedVelocity = _velocity;
+        _isInvulnerable = true;
+        _isRolling = true;
+        // Default direction if no movement is held. Should be the player's facing direction.
+        // For now just make it whatever.
+        if (_velocity == Vector2.zero)
+        {
+            _velocity = Vector2.up;
+        }
+
+        // Double movement speed during roll
+        _velocity *= _dodgeRollSpeedMultiplier;
+        float timePassed = 0;
+        while (timePassed < _dodgeRollDuration)
+        {
+            rb.position += _velocity * _speed * Time.deltaTime;
+            timePassed += Time.deltaTime;
+            yield return null;
+        }
+
+        // See storedVelocity for an explanation
+        if (storedVelocity != Vector2.zero)
+        {
+            _velocity = storedVelocity;
+        } else
+        {
+            _velocity = Vector2.zero;
+        }
+        storedVelocity = Vector2.zero;
+        _isInvulnerable = false;
+        _isRolling = false;
+    }
+
+    private void OnRewind()
+    {
+        // Set point if not set, otherwise travel to it
+        if (rewindSavePoint == null)
+        {
+            rewindSavePoint = new RewindSavePoint(transform.position, 0);
+            rewindMarker.transform.position = transform.position;
+            rewindMarker.SetActive(true);
+        } else
+        {
+            transform.position = rewindSavePoint.position;
+            // <Set ammo count here>
+            rewindSavePoint = null;
+            rewindMarker.SetActive(false);
         }
     }
 
@@ -106,9 +203,9 @@ public class Player : MonoBehaviour
                 Debug.LogError("No Rigidbody2D found on Player");
             }
         }
-        if (_speed == Vector2.zero)
+        if (rewindMarker == null)
         {
-            Debug.LogWarning("Player Speed set to 0");
+            Debug.LogWarning("Rewind Marker was null at start");
         }
         if (!_canMove)
         {
@@ -123,5 +220,41 @@ public class Player : MonoBehaviour
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+    }
+
+    /// <summary>
+    /// For now, this is just a super rough demo of shooting with 1 bullet that gets moved around.
+    /// Odds are the multi-gun system will make significant changes here, so I don't see the point
+    /// in spending too much time polishing this up.
+    /// </summary>
+    private void OnFire()
+    {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
+        direction.Normalize();
+
+        Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
+
+        test.transform.rotation = rotation;
+        test.transform.position = transform.position;
+
+
+        test.GetComponent<Rigidbody2D>().velocity = direction * -20f;
+    }
+
+    /// <summary>
+    /// Stores a Vector2 position and int ammoCount. These values are what the player will be restored to when rewinding to this point.
+    /// The player will store 3 of these at all times — one for each charge of Rewind they can hold.
+    /// </summary>
+    private class RewindSavePoint
+    {
+        public Vector2 position;
+        public int ammoCount;
+
+        public RewindSavePoint(Vector2 position, int ammoCount = 0)
+        {
+            this.position = position;
+            this.ammoCount = ammoCount;
+        }
     }
 }

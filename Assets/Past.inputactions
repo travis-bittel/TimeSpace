@@ -19,7 +19,23 @@
                     "id": "b5ae367f-a660-44b8-89a5-b18f2668ca3a",
                     "expectedControlType": "Button",
                     "processors": "",
+                    "interactions": "Press"
+                },
+                {
+                    "name": "DodgeRoll",
+                    "type": "Button",
+                    "id": "e7b57c08-0c68-4b2b-aec5-ad0fef8bcf5f",
+                    "expectedControlType": "Button",
+                    "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Rewind",
+                    "type": "Button",
+                    "id": "9a9101d8-b5cb-4ec2-a664-cb5a89d2f4a0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press"
                 }
             ],
             "bindings": [
@@ -207,6 +223,28 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "83d68065-70d6-42f2-8179-45ca810a5dfd",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DodgeRoll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "150d5819-0423-4858-99fc-8ca6a445ec18",
+                    "path": "<Keyboard>/alt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rewind",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
