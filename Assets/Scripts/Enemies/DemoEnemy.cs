@@ -5,37 +5,32 @@ using UnityEngine;
 
 public class DemoEnemy : Enemy
 {
-    [SerializeField]
-    private Rigidbody2D rb;
+    [SerializeField] private Rigidbody2D rb;
 
     /// <summary>
     /// Holds the current state of the enemy (Moving, Attacking, etc.)
     /// As enemies have different state lists and actions corresponding to those states, 
     /// this should be kept private and not accessed as it has little meaning to other classes.
     /// </summary>
-    [SerializeField]
-    private State state;
+    [SerializeField] private State state;
 
     /// <summary>
     /// Max distance at which the enemy will attempt to attack the player.
     /// </summary>
     public float SwingRange { get { return _swingRange; } }
-    [SerializeField]
-    private float _swingRange;
+    [SerializeField] private float _swingRange;
 
     /// <summary>
     /// Max distance at which the enemy's attack will hit the player.
     /// </summary>
     public float HitRange { get { return _hitRange; } }
-    [SerializeField]
-    private float _hitRange;
+    [SerializeField] private float _hitRange;
 
     /// <summary>
     /// Time between attack startup and damage occuring.
     /// </summary>
     public float AttackWindup { get { return _attackWindup; } }
-    [SerializeField]
-    private float _attackWindup;
+    [SerializeField] private float _attackWindup;
 
     // Start is called before the first frame update
     void Start()
