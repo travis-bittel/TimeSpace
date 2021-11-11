@@ -241,9 +241,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e5a9d5286273704487d27c4346349d7, type: 3}
+  m_Script: {fileID: 11500000, guid: 5585631bea442788697c5dd3184b3af5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraStiffness: 10
+  playerTransform: {fileID: 1496060039}
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -453,6 +455,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 128628519ccd39c468bfa0d609a80f71, type: 3}
+--- !u!4 &1496060039 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8468957235040195824, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+  m_PrefabInstance: {fileID: 8468957235616647167}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1792736815
 GameObject:
   m_ObjectHideFlags: 0
