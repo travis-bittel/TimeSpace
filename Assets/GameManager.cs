@@ -42,6 +42,5 @@ public class GameManager : MonoBehaviour
     {
         _currentRoom = newRoom;
         Player.Instance.transform.position = newRoom.PlayerStartPosition;
-        Camera.main.transform.position = newRoom.CameraStartPosition;
     }
 }
