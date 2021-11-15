@@ -32,20 +32,16 @@ public class Player : MonoBehaviour
     #endregion
 
     public float Health { get { return _health; } }
-    [SerializeField]
-    private float _health;
+    [SerializeField] private float _health;
 
     public float MaxHealth { get { return _maxHealth; } }
-    [SerializeField]
-    private float _maxHealth;
+    [SerializeField] private float _maxHealth;
 
     public bool IsInvulnerable { get { return _isInvulnerable; } }
-    [SerializeField]
-    private bool _isInvulnerable;
+    [SerializeField] private bool _isInvulnerable;
 
     public Vector2 Speed { get { return _speed; } }
-    [SerializeField]
-    private Vector2 _speed;
+    [SerializeField] private Vector2 _speed;
 
     /// <summary>
     /// Allows or prevents the player's Velocity from being updated by movement commands. When set to false, immediately sets Velocity to 0.
@@ -57,27 +53,22 @@ public class Player : MonoBehaviour
             _velocity = Vector2.zero;
         }
     }
-    [SerializeField]
-    private bool _canMove;
+    [SerializeField] private bool _canMove;
 
     /// <summary>
     /// Current velocity of the player. Updated when a move input is made or released and applied to position each frame in FixedUpdate.
     /// This is really more like the player's direction — it doesn't account for their speed multiplier.
     /// </summary>
     public Vector2 Velocity { get { return _velocity; } }
-    [SerializeField]
-    private Vector2 _velocity;
+    [SerializeField] private Vector2 _velocity;
 
-    [SerializeField]
-    private Rigidbody2D rb;
+    [SerializeField] private Rigidbody2D rb;
 
     public float DodgeRollSpeedMultiplier { get { return _dodgeRollSpeedMultiplier; } }
-    [SerializeField]
-    private float _dodgeRollSpeedMultiplier;
+    [SerializeField] private float _dodgeRollSpeedMultiplier;
 
     public float DodgeRollDuration { get { return _dodgeRollDuration; } }
-    [SerializeField]
-    private float _dodgeRollDuration;
+    [SerializeField] private float _dodgeRollDuration;
 
     /// <summary>
     /// Cooldown between uses of Dodge Roll. The cooldown starts as soon as the roll is complete.
@@ -92,14 +83,12 @@ public class Player : MonoBehaviour
     {
         get { return _isRolling; }
     }
-    [SerializeField]
-    private bool _isRolling;
+    [SerializeField] private bool _isRolling;
 
     /// <summary>
     /// During the Dodge Roll, the latest input is stored. At the end of the roll, the player's velocity is set to that value to create a smoother player experience.
     /// </summary>
-    [SerializeField]
-    private Vector2 storedVelocity;
+    [SerializeField] private Vector2 storedVelocity;
 
     /// <summary>
     /// Cooldown between uses of Rewind. The cooldown starts when the player teleports back to the marker position.
@@ -119,8 +108,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Visual marker for the player's Rewind location.
     /// </summary>
-    [SerializeField]
-    private GameObject rewindMarker;
+    [SerializeField] private GameObject rewindMarker;
 
     public GameObject test;
 
