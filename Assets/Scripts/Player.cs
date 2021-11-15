@@ -187,9 +187,11 @@ public class Player : MonoBehaviour
 
     private void OnRewind()
     {
-        if (currentRewindCooldownRemaining <= 0)
+        if (currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
         {
-            // Set point if not set, otherwise travel to it
+            /* *** OLD REWIND ***
+             * 
+             * // Set point if not set, otherwise travel to it
             if (rewindSavePoint == null)
             {
                 rewindSavePoint = new RewindSavePoint(transform.position, 0);
@@ -204,9 +206,44 @@ public class Player : MonoBehaviour
                 rewindMarker.SetActive(false);
                 // We start the cooldown after the player teleports to the marker
                 currentRewindCooldownRemaining = _rewindCooldown;
+            }*/
+            transform.position = rewindSavePoints[5].position;
+            for (int i = 0; i < rewindSavePoints.Length; i++)
+            {
+                if (i + 5 < rewindSavePoints.Length)
+                {
+                    rewindSavePoints[i] = rewindSavePoints[i + 5];
+                    //Debug.Log(rewindSavePoints[i + 5].position);
+                } 
+                else
+                {
+                    rewindSavePoints[i] = null;
+                }
             }
         }
     }
+
+
+    private RewindSavePoint[] rewindSavePoints;
+    private void UpdateRewindPoints()
+    {
+        // Shift all entires back one position
+        for (int i = rewindSavePoints.Length - 1; i > 0; i--)
+        {
+            rewindSavePoints[i] = rewindSavePoints[i - 1];
+        }
+        rewindSavePoints[0] = new RewindSavePoint(transform.position, 0);
+        if (rewindSavePoints[5] == null)
+        {
+            rewindMarker.SetActive(false);
+        } else
+        {
+            rewindMarker.SetActive(true);
+            rewindMarker.transform.position = rewindSavePoints[5].position;
+        }
+    }
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -230,6 +267,8 @@ public class Player : MonoBehaviour
         }
         #endregion
         _health = _maxHealth;
+        rewindSavePoints = new RewindSavePoint[20];
+        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
     }
 
     // Update is called once per frame
