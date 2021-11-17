@@ -679,6 +679,10 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+      propertyPath: lerpValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
       propertyPath: rewindMarker
       value: 
       objectReference: {fileID: 397098795}

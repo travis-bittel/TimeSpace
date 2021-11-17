@@ -207,7 +207,8 @@ public class Player : MonoBehaviour
                 // We start the cooldown after the player teleports to the marker
                 currentRewindCooldownRemaining = _rewindCooldown;
             }*/
-            transform.position = rewindSavePoints[5].position;
+            //transform.position = rewindSavePoints[5].position;
+            transform.position = rewindMarker.transform.position;
             for (int i = 0; i < rewindSavePoints.Length; i++)
             {
                 if (i + 5 < rewindSavePoints.Length)
@@ -239,7 +240,8 @@ public class Player : MonoBehaviour
         } else
         {
             rewindMarker.SetActive(true);
-            rewindMarker.transform.position = rewindSavePoints[5].position;
+            //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
+            //rewindMarker.transform.position = rewindSavePoints[5].position;
         }
     }
 
@@ -271,11 +273,18 @@ public class Player : MonoBehaviour
         InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
     }
 
+    public float lerpValue;
+
     // Update is called once per frame
     void Update()
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+
+        if (rewindSavePoints[5] != null)
+        {
+            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, lerpValue * Time.deltaTime);
+        }
 
         #region Cooldowns
         if (currentDodgeRollCooldownRemaining > 0)
