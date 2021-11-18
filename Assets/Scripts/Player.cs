@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Assertions;
 
 /// <summary>
 /// Singleton MonoBehaviour representing the player.
@@ -92,7 +93,16 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject rewindMarker;
 
-    public GameObject test;
+    public Gun EquippedGun { get { return _equippedGun; } }
+    [SerializeField] private Gun _equippedGun;
+
+    /// <summary>
+    /// Object pool for the bullets fired by the player. 
+    /// Is updated to the new bullet type when a new weapon is equipped.
+    /// </summary>
+    private GameObject[] bulletPool;
+
+    public float timeSinceLastShot;
 
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
@@ -186,21 +196,15 @@ public class Player : MonoBehaviour
         if (rb == null)
         {
             rb = GetComponent<Rigidbody2D>();
-            if (rb == null)
-            {
-                Debug.LogError("No Rigidbody2D found on Player");
-            }
+            Assert.IsNotNull(rb);
         }
-        if (rewindMarker == null)
-        {
-            Debug.LogWarning("Rewind Marker was null at start");
-        }
-        if (!_canMove)
-        {
-            Debug.LogWarning("canMove set to false at start");
-        }
+        Assert.IsNotNull("rewindMarker was null");
+        Assert.IsTrue(_canMove, "canMove set to false at start");
+        Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
         #endregion
+
         _health = _maxHealth;
+        UpdateObjectPool();
     }
 
     // Update is called once per frame
@@ -208,26 +212,63 @@ public class Player : MonoBehaviour
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+        timeSinceLastShot += Time.deltaTime;
     }
 
     /// <summary>
-    /// For now, this is just a super rough demo of shooting with 1 bullet that gets moved around.
-    /// Odds are the multi-gun system will make significant changes here, so I don't see the point
-    /// in spending too much time polishing this up.
+    /// Re-initializes the player's object pool with GameObjects for the current weapon's projectiles.
+    /// Should be called on startup and any time the player switches weapons.
+    /// </summary>
+    private void UpdateObjectPool()
+    {
+        // Destroy old projectiles
+        if (bulletPool != null)
+        {
+            foreach (GameObject obj in bulletPool)
+            {
+                Destroy(obj);
+            }
+        }
+
+        // Create new ones
+        GameObject[] newBulletPool = new GameObject[_equippedGun.projectilePoolSize];
+        for (int i = 0; i < _equippedGun.projectilePoolSize; i++)
+        {
+            newBulletPool[i] = Instantiate(_equippedGun.projectile);
+            newBulletPool[i].SetActive(false);
+        }
+        bulletPool = newBulletPool;
+    }
+
+    private void InitializeProjectile(Vector2 position, Vector2 direction)
+    {
+        foreach (GameObject obj in bulletPool)
+        {
+            if (!obj.activeSelf)
+            {
+                Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
+                obj.transform.SetPositionAndRotation(position, rotation);
+                obj.GetComponent<Projectile>().direction = direction;
+                obj.SetActive(true);
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 
     /// </summary>
     private void OnFire()
     {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
-        direction.Normalize();
+        if (timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
+        {
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
+            direction.Normalize();
 
-        Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
-
-        test.transform.rotation = rotation;
-        test.transform.position = transform.position;
-
-
-        test.GetComponent<Rigidbody2D>().velocity = direction * -20f;
+            InitializeProjectile(transform.position, direction);
+            timeSinceLastShot = 0;
+        }
     }
 
     /// <summary>
