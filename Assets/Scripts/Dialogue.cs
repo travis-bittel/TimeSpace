@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class Dialogue : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class Dialogue : MonoBehaviour
     public string[] lines;
     public float textSpeed;
     private int index;
+    public InputAction proceed;
 
     // Start is called before the first frame update
     void Start()
@@ -20,15 +22,16 @@ public class Dialogue : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //cant get input
-        if (false) {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame) {
             if (textComponent.text == lines[index])
             {
                 NextLine();
+                Debug.Log("next");
             }
             else {
                 StopAllCoroutines();
                 textComponent.text = lines[index];
+                Debug.Log("End");
             }
         }
     }
