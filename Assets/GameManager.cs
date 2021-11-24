@@ -64,4 +64,14 @@ public class GameManager : MonoBehaviour
             availableGunsByName.Add(availableGunsByID[i].weaponName, availableGunsByID[i]);
         }
     }
+
+    public Gun GetGunByName(string name)
+    {
+        return availableGunsByName[name];
+    }
+
+    public Gun GetGunByID(int id)
+    {
+        return availableGunsByID[id];
+    }
 }

@@ -955,6 +955,7 @@ MonoBehaviour:
   _currentRoom: {fileID: 0}
   availableGunsByID:
   - {fileID: 11400000, guid: 5b21fe2e364393d4290995b1824684ff, type: 2}
+  - {fileID: 11400000, guid: 0a3881d398ec08e42bdbc5c0282f6179, type: 2}
 --- !u!4 &1792736817
 Transform:
   m_ObjectHideFlags: 0

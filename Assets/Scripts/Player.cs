@@ -115,6 +115,11 @@ public class Player : MonoBehaviour
     private float _reloadProgress;
 
     /// <summary>
+    /// Whether the fire button is currently held. Used to support weapons firing continuously.
+    /// </summary>
+    private bool isFiring;
+
+    /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
     /// </summary>
     /// <param name="amount"></param>
@@ -224,6 +229,12 @@ public class Player : MonoBehaviour
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
         timeSinceLastShot += Time.deltaTime;
+
+        // We shoot when the button is first pressed and each frame if our gun fires continuously.
+        if (_equippedGun.fireContinuously && isFiring)
+        {
+            Shoot();
+        }
     }
 
     /// <summary>
@@ -266,9 +277,22 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnFire()
+    /// <summary>
+    /// Is called by the InputSystem on both press and release.
+    /// </summary>
+    /// <param name="value"></param>
+    private void OnFire(InputValue value)
     {
-        if (!IsReloading && timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
+        isFiring = value.isPressed;
+        Shoot();
+    }
+
+    /// <summary>
+    /// Checks if the player is eligible to shoot and, if so, shoots.
+    /// </summary>
+    private void Shoot()
+    {
+        if (isFiring && !_isReloading && timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
         {
             if (ammoRemaining > 0)
             {
@@ -279,7 +303,8 @@ public class Player : MonoBehaviour
                 InitializeProjectile(transform.position, direction);
                 timeSinceLastShot = 0;
                 ammoRemaining--;
-            } else
+            }
+            else
             {
                 OnReload();
             }
