@@ -313,7 +313,7 @@ public class Player : MonoBehaviour
 
     private void OnReload()
     {
-        if (!IsReloading)
+        if (!IsReloading && ammoRemaining < _equippedGun.maxAmmo)
         {
             StartCoroutine(Reload());
         }
