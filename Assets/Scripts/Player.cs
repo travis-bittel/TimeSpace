@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     #region Singleton
     private static Player _instance;
 
-    public static Player Instance { get { return _instance; } }
+    public static Player Instance { get => _instance; }
 
     private void Awake()
     {
@@ -32,23 +32,23 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    public float Health { get { return _health; } }
+    public float Health { get => _health; }
     [SerializeField] private float _health;
 
-    public float MaxHealth { get { return _maxHealth; } }
+    public float MaxHealth { get => _maxHealth; }
     [SerializeField] private float _maxHealth;
 
-    public bool IsInvulnerable { get { return _isInvulnerable; } }
+    public bool IsInvulnerable { get => _isInvulnerable; }
     [SerializeField] private bool _isInvulnerable;
 
-    public Vector2 Speed { get { return _speed; } }
+    public Vector2 Speed { get => _speed; }
     [SerializeField] private Vector2 _speed;
 
     /// <summary>
     /// Allows or prevents the player's Velocity from being updated by movement commands. When set to false, immediately sets Velocity to 0.
     /// </summary>
     public bool CanMove { 
-        get { return _canMove; } 
+        get => _canMove;
         set { 
             _canMove = value;
             _velocity = Vector2.zero;
@@ -60,15 +60,15 @@ public class Player : MonoBehaviour
     /// Current velocity of the player. Updated when a move input is made or released and applied to position each frame in FixedUpdate.
     /// This is really more like the player's direction — it doesn't account for their speed multiplier.
     /// </summary>
-    public Vector2 Velocity { get { return _velocity; } }
+    public Vector2 Velocity { get => _velocity; }
     [SerializeField] private Vector2 _velocity;
 
     [SerializeField] private Rigidbody2D rb;
 
-    public float DodgeRollSpeedMultiplier { get { return _dodgeRollSpeedMultiplier; } }
+    public float DodgeRollSpeedMultiplier { get => _dodgeRollSpeedMultiplier; }
     [SerializeField] private float _dodgeRollSpeedMultiplier;
 
-    public float DodgeRollDuration { get { return _dodgeRollDuration; } }
+    public float DodgeRollDuration { get => _dodgeRollDuration; }
     [SerializeField] private float _dodgeRollDuration;
 
     public bool IsRolling
@@ -93,7 +93,8 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject rewindMarker;
 
-    public Gun EquippedGun { get { return _equippedGun; } }
+    public Gun EquippedGun { get => _equippedGun; }
+
     [SerializeField] private Gun _equippedGun;
 
     /// <summary>
@@ -104,9 +105,14 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float timeSinceLastShot;
 
-    private int ammoRemaining;
+    [SerializeField] private int ammoRemaining;
 
-    private bool isReloading;
+    public bool IsReloading { get => _isReloading; }
+
+    [SerializeField] private bool _isReloading;
+
+    public float ReloadProgress { get => _reloadProgress; }
+    private float _reloadProgress;
 
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
@@ -209,6 +215,7 @@ public class Player : MonoBehaviour
 
         _health = _maxHealth;
         UpdateObjectPool();
+        ammoRemaining = _equippedGun.maxAmmo;
     }
 
     // Update is called once per frame
@@ -261,7 +268,7 @@ public class Player : MonoBehaviour
 
     private void OnFire()
     {
-        if (timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
+        if (!IsReloading && timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
         {
             if (ammoRemaining > 0)
             {
@@ -271,6 +278,7 @@ public class Player : MonoBehaviour
 
                 InitializeProjectile(transform.position, direction);
                 timeSinceLastShot = 0;
+                ammoRemaining--;
             } else
             {
                 OnReload();
@@ -280,7 +288,7 @@ public class Player : MonoBehaviour
 
     private void OnReload()
     {
-        if (!isReloading)
+        if (!IsReloading)
         {
             StartCoroutine(Reload());
         }
@@ -288,10 +296,17 @@ public class Player : MonoBehaviour
 
     private IEnumerator Reload()
     {
-        isReloading = true;
-        yield return new WaitForSeconds(_equippedGun.reloadTime);
+        ReloadSliderManager.Instance.SetReloadBarActive(true);
+        _isReloading = true;
+        // We need to track the reload progress for the reload bar display
+        while (_reloadProgress < _equippedGun.reloadTime)
+        {
+            _reloadProgress += Time.deltaTime;
+            yield return null;
+        }
         ammoRemaining = _equippedGun.maxAmmo;
-        isReloading = false;
+        _isReloading = false;
+        _reloadProgress = 0;
     }
 
     /// <summary>
