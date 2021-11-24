@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 5252670009069761062}
   m_Layer: 0
   m_Name: DemoEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -106,7 +106,7 @@ MonoBehaviour:
   state: 0
   _swingRange: 2
   _hitRange: 3
-  _isAttacking: 0
+  _attackWindup: 0
 --- !u!114 &5252670009069761060
 MonoBehaviour:
   m_ObjectHideFlags: 0
