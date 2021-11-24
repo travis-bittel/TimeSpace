@@ -92,19 +92,19 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector2 storedVelocity;
 
     /// <summary>
+    /// **This currently does nothing and may be removed depending on the direction we take for Rewind.**
     /// Cooldown between uses of Rewind. The cooldown starts when the player teleports back to the marker position.
     /// </summary>
     public float RewindCooldown { get { return _rewindCooldown; } }
     [SerializeField]
     private float _rewindCooldown;
 
-    private float currentRewindCooldownRemaining;
-
     /// <summary>
-    /// The Rewind point the player saved when using the first cast of Rewind.
-    /// Null indicates that the player does not have a Rewind point saved.
+    /// Lerp multiplier for the rewind marker. Determines how fast the rewind marker moves. High values may make movement look choppy.
     /// </summary>
-    private RewindSavePoint rewindSavePoint;
+    [SerializeField] private float rewindMarkerLerpFactor;
+
+    private float currentRewindCooldownRemaining;
 
     /// <summary>
     /// Visual marker for the player's Rewind location.
@@ -270,8 +270,6 @@ public class Player : MonoBehaviour
         }
     }
 
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -284,16 +282,15 @@ public class Player : MonoBehaviour
         Assert.IsNotNull("rewindMarker was null");
         Assert.IsTrue(_canMove, "canMove set to false at start");
         Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
+        Assert.AreNotEqual(rewindMarkerLerpFactor, 0, "Rewind Marker Lerp Factor was set to 0");
         #endregion
 
         _health = _maxHealth;
-        rewindSavePoints = new RewindSavePoint[20];
+        rewindSavePoints = new RewindSavePoint[25];
         InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
         UpdateObjectPool();
         ammoRemaining = _equippedGun.maxAmmo;
     }
-
-    public float lerpValue;
 
     // Update is called once per frame
     void Update()
@@ -303,7 +300,7 @@ public class Player : MonoBehaviour
 
         if (rewindSavePoints[5] != null)
         {
-            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, lerpValue * Time.deltaTime);
+            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
         }
 
         #region Cooldowns
