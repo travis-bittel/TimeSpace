@@ -102,7 +102,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private GameObject[] bulletPool;
 
-    public float timeSinceLastShot;
+    [SerializeField] private float timeSinceLastShot;
+
+    private int ammoRemaining;
+
+    private bool isReloading;
 
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
@@ -255,20 +259,39 @@ public class Player : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     private void OnFire()
     {
         if (timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
-            direction.Normalize();
+            if (ammoRemaining > 0)
+            {
+                Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+                Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
+                direction.Normalize();
 
-            InitializeProjectile(transform.position, direction);
-            timeSinceLastShot = 0;
+                InitializeProjectile(transform.position, direction);
+                timeSinceLastShot = 0;
+            } else
+            {
+                OnReload();
+            }
         }
+    }
+
+    private void OnReload()
+    {
+        if (!isReloading)
+        {
+            StartCoroutine(Reload());
+        }
+    }
+
+    private IEnumerator Reload()
+    {
+        isReloading = true;
+        yield return new WaitForSeconds(_equippedGun.reloadTime);
+        ammoRemaining = _equippedGun.maxAmmo;
+        isReloading = false;
     }
 
     /// <summary>
