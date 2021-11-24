@@ -774,6 +774,33 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Dialogue",
+            "id": "63315213-7b5b-4f06-8d9a-c16be2cb9c82",
+            "actions": [
+                {
+                    "name": "Proceed",
+                    "type": "Button",
+                    "id": "093a6f66-8cbf-43cd-8bdd-1ea1f81ab3b2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "64572afb-f184-4f17-9dd8-aa47305a896e",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Proceed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [
