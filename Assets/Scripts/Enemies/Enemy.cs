@@ -35,7 +35,7 @@ public abstract class Enemy : MonoBehaviour
         _health -= amount;
         if (_health <= 0)
         {
-            // Die
+            gameObject.SetActive(false);
         }
     }
 

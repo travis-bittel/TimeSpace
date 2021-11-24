@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfee7f016a238dd45afa60d901077f96, type: 3}
+  m_Name: FullAuto
+  m_EditorClassIdentifier: 
+  weaponName: 
+  maxAmmo: 20
+  reloadTime: 3
+  shotsPerSecond: 6
+  fireContinuously: 1
+  projectile: {fileID: 3723353938807580376, guid: f7c8d6f411d8ed945ae9be8718d83a53, type: 3}
+  projectilePoolSize: 12
