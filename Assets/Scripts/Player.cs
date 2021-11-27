@@ -273,6 +273,13 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _health = _maxHealth;
+        rewindSavePoints = new RewindSavePoint[25];
+
+        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
+        UpdateObjectPool();
+        ammoRemaining = _equippedGun.maxAmmo;
+
         #region Value Checking
         if (rb == null)
         {
@@ -284,12 +291,6 @@ public class Player : MonoBehaviour
         Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
         Assert.AreNotEqual(rewindMarkerLerpFactor, 0, "Rewind Marker Lerp Factor was set to 0");
         #endregion
-
-        _health = _maxHealth;
-        rewindSavePoints = new RewindSavePoint[25];
-        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
-        UpdateObjectPool();
-        ammoRemaining = _equippedGun.maxAmmo;
     }
 
     // Update is called once per frame
