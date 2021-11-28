@@ -32,11 +32,8 @@ public class Projectile : MonoBehaviour
             other.GetComponent<Enemy>().Damage(damageAmount);
             gameObject.SetActive(false);
         }
-    }
 
-    // Disable bullet when it leaves the bounds of the room
-    private void OnTriggerExit2D(Collider2D other)
-    {
+        // Disable bullet when colliding with wall
         if (other.CompareTag("Room"))
         {
             gameObject.SetActive(false);

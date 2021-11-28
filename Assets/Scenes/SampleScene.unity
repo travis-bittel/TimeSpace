@@ -411,6 +411,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DemoEnemy
       objectReference: {fileID: 0}
+    - target: {fileID: 5252670009069761057, guid: 128628519ccd39c468bfa0d609a80f71, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5252670009069761061, guid: 128628519ccd39c468bfa0d609a80f71, type: 3}
       propertyPath: state
       value: 1
@@ -496,7 +500,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentRoom: {fileID: 0}
-  availableGunsByID: []
+  availableGunsByID:
+  - {fileID: 11400000, guid: 5b21fe2e364393d4290995b1824684ff, type: 2}
+  - {fileID: 11400000, guid: 0a3881d398ec08e42bdbc5c0282f6179, type: 2}
 --- !u!4 &1792736817
 Transform:
   m_ObjectHideFlags: 0
@@ -3112,7 +3118,7 @@ GameObject:
   - component: {fileID: 2004708783}
   m_Layer: 0
   m_Name: Walls
-  m_TagString: Untagged
+  m_TagString: Room
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7321,12 +7327,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 397098795}
     - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+      propertyPath: _rewindCooldown
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
       propertyPath: _rewindMaxCharges
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+      propertyPath: _dodgeRollCooldown
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
       propertyPath: _dodgeRollDuration
       value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+      propertyPath: rewindMarkerLerpFactor
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
       propertyPath: _dodgeRollSpeedMultiplier

@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
 
     /// <summary>
     /// Current velocity of the player. Updated when a move input is made or released and applied to position each frame in FixedUpdate.
-    /// This is really more like the player's direction — it doesn't account for their speed multiplier.
+    /// This is really more like the player's direction ï¿½ it doesn't account for their speed multiplier.
     /// </summary>
     public Vector2 Velocity { get => _velocity; }
     [SerializeField] private Vector2 _velocity;
@@ -70,6 +70,15 @@ public class Player : MonoBehaviour
 
     public float DodgeRollDuration { get => _dodgeRollDuration; }
     [SerializeField] private float _dodgeRollDuration;
+
+    /// <summary>
+    /// Cooldown between uses of Dodge Roll. The cooldown starts as soon as the roll is complete.
+    /// </summary>
+    public float DodgeRollCooldown { get { return _dodgeRollCooldown; } }
+    [SerializeField]
+    private float _dodgeRollCooldown;
+
+    private float currentDodgeRollCooldownRemaining;
 
     public bool IsRolling
     {
@@ -83,10 +92,19 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector2 storedVelocity;
 
     /// <summary>
-    /// The Rewind point the player saved when using the first cast of Rewind.
-    /// Null indicates that the player does not have a Rewind point saved.
+    /// **This currently does nothing and may be removed depending on the direction we take for Rewind.**
+    /// Cooldown between uses of Rewind. The cooldown starts when the player teleports back to the marker position.
     /// </summary>
-    private RewindSavePoint rewindSavePoint;
+    public float RewindCooldown { get { return _rewindCooldown; } }
+    [SerializeField]
+    private float _rewindCooldown;
+
+    /// <summary>
+    /// Lerp multiplier for the rewind marker. Determines how fast the rewind marker moves. High values may make movement look choppy.
+    /// </summary>
+    [SerializeField] private float rewindMarkerLerpFactor;
+
+    private float currentRewindCooldownRemaining;
 
     /// <summary>
     /// Visual marker for the player's Rewind location.
@@ -149,7 +167,10 @@ public class Player : MonoBehaviour
 
     private void OnDodgeRoll()
     {
-        StartCoroutine(DodgeRoll());
+        if (currentDodgeRollCooldownRemaining <= 0)
+        {
+            StartCoroutine(DodgeRoll());
+        }
     }
 
     private IEnumerator DodgeRoll()
@@ -185,28 +206,80 @@ public class Player : MonoBehaviour
         storedVelocity = Vector2.zero;
         _isInvulnerable = false;
         _isRolling = false;
+        // We start the cooldown after the roll is complete
+        currentDodgeRollCooldownRemaining = _dodgeRollCooldown;
     }
 
     private void OnRewind()
     {
-        // Set point if not set, otherwise travel to it
-        if (rewindSavePoint == null)
+        if (currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
         {
-            rewindSavePoint = new RewindSavePoint(transform.position, 0);
-            rewindMarker.transform.position = transform.position;
-            rewindMarker.SetActive(true);
+            /* *** OLD REWIND ***
+             * 
+             * // Set point if not set, otherwise travel to it
+            if (rewindSavePoint == null)
+            {
+                rewindSavePoint = new RewindSavePoint(transform.position, 0);
+                rewindMarker.transform.position = transform.position;
+                rewindMarker.SetActive(true);
+            }
+            else
+            {
+                transform.position = rewindSavePoint.position;
+                // <Set ammo count here>
+                rewindSavePoint = null;
+                rewindMarker.SetActive(false);
+                // We start the cooldown after the player teleports to the marker
+                currentRewindCooldownRemaining = _rewindCooldown;
+            }*/
+            //transform.position = rewindSavePoints[5].position;
+            transform.position = rewindMarker.transform.position;
+            for (int i = 0; i < rewindSavePoints.Length; i++)
+            {
+                if (i + 5 < rewindSavePoints.Length)
+                {
+                    rewindSavePoints[i] = rewindSavePoints[i + 5];
+                    //Debug.Log(rewindSavePoints[i + 5].position);
+                } 
+                else
+                {
+                    rewindSavePoints[i] = null;
+                }
+            }
+        }
+    }
+
+
+    private RewindSavePoint[] rewindSavePoints;
+    private void UpdateRewindPoints()
+    {
+        // Shift all entires back one position
+        for (int i = rewindSavePoints.Length - 1; i > 0; i--)
+        {
+            rewindSavePoints[i] = rewindSavePoints[i - 1];
+        }
+        rewindSavePoints[0] = new RewindSavePoint(transform.position, 0);
+        if (rewindSavePoints[5] == null)
+        {
+            rewindMarker.SetActive(false);
         } else
         {
-            transform.position = rewindSavePoint.position;
-            // <Set ammo count here>
-            rewindSavePoint = null;
-            rewindMarker.SetActive(false);
+            rewindMarker.SetActive(true);
+            //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
+            //rewindMarker.transform.position = rewindSavePoints[5].position;
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        _health = _maxHealth;
+        rewindSavePoints = new RewindSavePoint[25];
+
+        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
+        UpdateObjectPool();
+        ammoRemaining = _equippedGun.maxAmmo;
+
         #region Value Checking
         if (rb == null)
         {
@@ -216,11 +289,8 @@ public class Player : MonoBehaviour
         Assert.IsNotNull("rewindMarker was null");
         Assert.IsTrue(_canMove, "canMove set to false at start");
         Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
+        Assert.AreNotEqual(rewindMarkerLerpFactor, 0, "Rewind Marker Lerp Factor was set to 0");
         #endregion
-
-        _health = _maxHealth;
-        UpdateObjectPool();
-        ammoRemaining = _equippedGun.maxAmmo;
     }
 
     // Update is called once per frame
@@ -228,6 +298,31 @@ public class Player : MonoBehaviour
     {
         // Movement
         rb.position += _velocity * _speed * Time.deltaTime;
+
+        if (rewindSavePoints[5] != null)
+        {
+            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
+        }
+
+        #region Cooldowns
+        if (currentDodgeRollCooldownRemaining > 0)
+        {
+            currentDodgeRollCooldownRemaining -= Time.deltaTime;
+            if (currentDodgeRollCooldownRemaining < 0)
+            {
+                currentDodgeRollCooldownRemaining = 0;
+            }
+        }
+        if (currentRewindCooldownRemaining > 0)
+        {
+            currentRewindCooldownRemaining -= Time.deltaTime;
+            if (currentRewindCooldownRemaining < 0)
+            {
+                currentRewindCooldownRemaining = 0;
+            }
+        }
+        #endregion
+        
         timeSinceLastShot += Time.deltaTime;
 
         // We shoot when the button is first pressed and each frame if our gun fires continuously.
@@ -336,7 +431,7 @@ public class Player : MonoBehaviour
 
     /// <summary>
     /// Stores a Vector2 position and int ammoCount. These values are what the player will be restored to when rewinding to this point.
-    /// The player will store 3 of these at all times — one for each charge of Rewind they can hold.
+    /// The player will store 3 of these at all times ï¿½ one for each charge of Rewind they can hold.
     /// </summary>
     private class RewindSavePoint
     {
