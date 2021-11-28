@@ -112,7 +112,6 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject rewindMarker;
 
     public Gun EquippedGun { get => _equippedGun; }
-
     [SerializeField] private Gun _equippedGun;
 
     /// <summary>
@@ -120,13 +119,12 @@ public class Player : MonoBehaviour
     /// Is updated to the new bullet type when a new weapon is equipped.
     /// </summary>
     private GameObject[] bulletPool;
-
     [SerializeField] private float timeSinceLastShot;
 
-    [SerializeField] private int ammoRemaining;
+    public int AmmoRemaining { get => _ammoRemaining; }
+    [SerializeField] private int _ammoRemaining;
 
     public bool IsReloading { get => _isReloading; }
-
     [SerializeField] private bool _isReloading;
 
     public float ReloadProgress { get => _reloadProgress; }
@@ -136,6 +134,68 @@ public class Player : MonoBehaviour
     /// Whether the fire button is currently held. Used to support weapons firing continuously.
     /// </summary>
     private bool isFiring;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        _health = _maxHealth;
+        rewindSavePoints = new RewindSavePoint[25];
+
+        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
+        UpdateObjectPool();
+        _ammoRemaining = _equippedGun.maxAmmo;
+
+        #region Value Checking
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+            Assert.IsNotNull(rb);
+        }
+        Assert.IsNotNull("rewindMarker was null");
+        Assert.IsTrue(_canMove, "canMove set to false at start");
+        Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
+        Assert.AreNotEqual(rewindMarkerLerpFactor, 0, "Rewind Marker Lerp Factor was set to 0");
+        #endregion
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // Movement
+        rb.position += _velocity * _speed * Time.deltaTime;
+
+        if (rewindSavePoints[5] != null)
+        {
+            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
+        }
+
+        #region Cooldowns
+        if (currentDodgeRollCooldownRemaining > 0)
+        {
+            currentDodgeRollCooldownRemaining -= Time.deltaTime;
+            if (currentDodgeRollCooldownRemaining < 0)
+            {
+                currentDodgeRollCooldownRemaining = 0;
+            }
+        }
+        if (currentRewindCooldownRemaining > 0)
+        {
+            currentRewindCooldownRemaining -= Time.deltaTime;
+            if (currentRewindCooldownRemaining < 0)
+            {
+                currentRewindCooldownRemaining = 0;
+            }
+        }
+        #endregion
+
+        timeSinceLastShot += Time.deltaTime;
+
+        // We shoot when the button is first pressed and each frame if our gun fires continuously.
+        if (_equippedGun.fireContinuously && isFiring)
+        {
+            Shoot();
+        }
+    }
 
     /// <summary>
     /// Deals the specified amount of damage to the player and kills them if health is &lt;=0 after the damage is applied.
@@ -234,6 +294,8 @@ public class Player : MonoBehaviour
             }*/
             //transform.position = rewindSavePoints[5].position;
             transform.position = rewindMarker.transform.position;
+            _ammoRemaining = rewindSavePoints[5].ammoCount;
+            UpdateAmmoText();
             for (int i = 0; i < rewindSavePoints.Length; i++)
             {
                 if (i + 5 < rewindSavePoints.Length)
@@ -258,7 +320,7 @@ public class Player : MonoBehaviour
         {
             rewindSavePoints[i] = rewindSavePoints[i - 1];
         }
-        rewindSavePoints[0] = new RewindSavePoint(transform.position, 0);
+        rewindSavePoints[0] = new RewindSavePoint(transform.position, _ammoRemaining);
         if (rewindSavePoints[5] == null)
         {
             rewindMarker.SetActive(false);
@@ -267,68 +329,6 @@ public class Player : MonoBehaviour
             rewindMarker.SetActive(true);
             //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
             //rewindMarker.transform.position = rewindSavePoints[5].position;
-        }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        _health = _maxHealth;
-        rewindSavePoints = new RewindSavePoint[25];
-
-        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
-        UpdateObjectPool();
-        ammoRemaining = _equippedGun.maxAmmo;
-
-        #region Value Checking
-        if (rb == null)
-        {
-            rb = GetComponent<Rigidbody2D>();
-            Assert.IsNotNull(rb);
-        }
-        Assert.IsNotNull("rewindMarker was null");
-        Assert.IsTrue(_canMove, "canMove set to false at start");
-        Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
-        Assert.AreNotEqual(rewindMarkerLerpFactor, 0, "Rewind Marker Lerp Factor was set to 0");
-        #endregion
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // Movement
-        rb.position += _velocity * _speed * Time.deltaTime;
-
-        if (rewindSavePoints[5] != null)
-        {
-            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
-        }
-
-        #region Cooldowns
-        if (currentDodgeRollCooldownRemaining > 0)
-        {
-            currentDodgeRollCooldownRemaining -= Time.deltaTime;
-            if (currentDodgeRollCooldownRemaining < 0)
-            {
-                currentDodgeRollCooldownRemaining = 0;
-            }
-        }
-        if (currentRewindCooldownRemaining > 0)
-        {
-            currentRewindCooldownRemaining -= Time.deltaTime;
-            if (currentRewindCooldownRemaining < 0)
-            {
-                currentRewindCooldownRemaining = 0;
-            }
-        }
-        #endregion
-        
-        timeSinceLastShot += Time.deltaTime;
-
-        // We shoot when the button is first pressed and each frame if our gun fires continuously.
-        if (_equippedGun.fireContinuously && isFiring)
-        {
-            Shoot();
         }
     }
 
@@ -389,15 +389,16 @@ public class Player : MonoBehaviour
     {
         if (isFiring && !_isReloading && timeSinceLastShot >= (float) 1 / _equippedGun.shotsPerSecond)
         {
-            if (ammoRemaining > 0)
+            if (AmmoRemaining > 0)
             {
                 Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
                 direction.Normalize();
 
+                _ammoRemaining--;
                 InitializeProjectile(transform.position, direction);
                 timeSinceLastShot = 0;
-                ammoRemaining--;
+                UpdateAmmoText();
             }
             else
             {
@@ -408,7 +409,7 @@ public class Player : MonoBehaviour
 
     private void OnReload()
     {
-        if (!IsReloading && ammoRemaining < _equippedGun.maxAmmo)
+        if (!IsReloading && AmmoRemaining < _equippedGun.maxAmmo)
         {
             StartCoroutine(Reload());
         }
@@ -424,9 +425,16 @@ public class Player : MonoBehaviour
             _reloadProgress += Time.deltaTime;
             yield return null;
         }
-        ammoRemaining = _equippedGun.maxAmmo;
+        _ammoRemaining = _equippedGun.maxAmmo;
         _isReloading = false;
         _reloadProgress = 0;
+        UpdateAmmoText();
+    }
+
+    private void UpdateAmmoText()
+    {
+        // God I love string interpolation
+        AmmoTextHandler.Instance.UpdateText($"{AmmoRemaining} / {_equippedGun.maxAmmo}");
     }
 
     /// <summary>
