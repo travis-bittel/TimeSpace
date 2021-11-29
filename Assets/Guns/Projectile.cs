@@ -8,13 +8,20 @@ public class Projectile : MonoBehaviour
 {
     private Rigidbody2D rb;
     public Vector2 direction;
-    public float damageAmount;
+    public float damage;
+    public float speed;
+
+    [Header("Final Projectile Properties")]
+    public float finalShotDamage;
+    public float finalShotSpeed;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
+        Assert.AreNotEqual(speed, 0, "Projectile speed was set to 0");
+        Assert.AreNotEqual(finalShotSpeed, 0, "Projectile final shot speed was set to 0");
     }
 
     private void OnEnable()
@@ -22,14 +29,36 @@ public class Projectile : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
 
-        rb.velocity = direction * -20;
+        if (Player.Instance.AmmoRemaining == 0)
+        {
+            rb.velocity = direction * (-finalShotSpeed);
+        } else
+        {
+            rb.velocity = direction * (-speed);
+        }
+
+        // Temporary for visual effect, replace with different sprite later
+        if (Player.Instance.AmmoRemaining == 0)
+        {
+            GetComponent<SpriteRenderer>().color = Color.red;
+        } else
+        {
+            GetComponent<SpriteRenderer>().color = Color.white;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Enemy"))
         {
-            other.GetComponent<Enemy>().Damage(damageAmount);
+            if (Player.Instance.AmmoRemaining == 0)
+            {
+                other.GetComponent<Enemy>().Damage(finalShotDamage);
+            }
+            else
+            {
+                other.GetComponent<Enemy>().Damage(damage);
+            }
             gameObject.SetActive(false);
         }
 
