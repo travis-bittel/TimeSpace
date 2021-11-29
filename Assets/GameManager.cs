@@ -63,6 +63,8 @@ public class GameManager : MonoBehaviour
         {
             availableGunsByName.Add(availableGunsByID[i].weaponName, availableGunsByID[i]);
         }
+
+        Dialogue.Instance.DisplayDialogue("Hello", "String2", "well done", "IT WORKS!");
     }
 
     public Gun GetGunByName(string name)

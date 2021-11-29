@@ -437,6 +437,11 @@ public class Player : MonoBehaviour
         AmmoTextHandler.Instance.UpdateText($"{AmmoRemaining} / {_equippedGun.maxAmmo}");
     }
 
+    private void OnAdvanceText()
+    {
+        Dialogue.Instance.NextLine();
+    }
+
     /// <summary>
     /// Stores a Vector2 position and int ammoCount. These values are what the player will be restored to when rewinding to this point.
     /// The player will store 3 of these at all times � one for each charge of Rewind they can hold.
