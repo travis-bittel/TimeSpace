@@ -295,6 +295,7 @@ public class Player : MonoBehaviour
             //transform.position = rewindSavePoints[5].position;
             transform.position = rewindMarker.transform.position;
             _ammoRemaining = rewindSavePoints[5].ammoCount;
+            currentRewindCooldownRemaining = _rewindCooldown;
             UpdateAmmoText();
             for (int i = 0; i < rewindSavePoints.Length; i++)
             {
@@ -321,7 +322,7 @@ public class Player : MonoBehaviour
             rewindSavePoints[i] = rewindSavePoints[i - 1];
         }
         rewindSavePoints[0] = new RewindSavePoint(transform.position, _ammoRemaining);
-        if (rewindSavePoints[5] == null)
+        if (rewindSavePoints[5] == null || currentRewindCooldownRemaining > 0)
         {
             rewindMarker.SetActive(false);
         } else
