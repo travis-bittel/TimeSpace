@@ -7,6 +7,8 @@ public class DemoEnemy : Enemy
 {
     [SerializeField] private Rigidbody2D rb;
 
+    private NavMeshAgent2D _na;
+
     /// <summary>
     /// Holds the current state of the enemy (Moving, Attacking, etc.)
     /// As enemies have different state lists and actions corresponding to those states, 
@@ -49,6 +51,7 @@ public class DemoEnemy : Enemy
                 Debug.LogError("No Rigidbody2D found on DemoEnemy");
             }
         }
+        TryGetComponent<NavMeshAgent2D>(out _na);
         #endregion
     }
 
@@ -95,10 +98,11 @@ public class DemoEnemy : Enemy
     /// <returns>Nothing lmao</returns>
     private IEnumerator Move()
     { 
-        // Only attack if damaged or player is within range
+        
+        // transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
         if (PlayerInRange(detectRange) || _health < _maxHealth)
         {
-            transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
+            _na.destination = Player.Instance.transform.position;
             if (PlayerInRange(_swingRange))
             {
                 state = State.Attacking;
