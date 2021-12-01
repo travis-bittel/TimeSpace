@@ -86,7 +86,10 @@ public class GameManager : MonoBehaviour
 
     public void RegisterEnemy(Enemy enemy)
     {
-        activeEnemies.Add(enemy);
+        if (!activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Add(enemy);
+        }
     }
     public void UnregisterEnemy(Enemy enemy)
     {

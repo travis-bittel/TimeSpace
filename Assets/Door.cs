@@ -9,11 +9,10 @@ public class Door : MonoBehaviour, Interactable
     /// </summary>
     [SerializeField] private GameObject fogOfWar;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    /// <summary>
+    /// Enemies to set active when the door is opened.
+    /// </summary>
+    [SerializeField] private List<Enemy> enemies;
 
     /// <summary>
     /// Call to open the door and remove the attached fog of war, if any.
@@ -26,6 +25,10 @@ public class Door : MonoBehaviour, Interactable
             if (fogOfWar != null)
             {
                 fogOfWar.SetActive(false);
+            }
+            foreach (Enemy enemy in enemies)
+            {
+                enemy.gameObject.SetActive(true);
             }
         }
     }
