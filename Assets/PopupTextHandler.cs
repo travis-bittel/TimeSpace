@@ -41,9 +41,10 @@ public class PopupTextHandler : MonoBehaviour
 
     /// <summary>
     /// Change the currently displayed popup text.  
+    /// Call with no args to hide text.
     /// </summary>
-    public void UpdatePopupText()
+    public void UpdatePopupText(string text = "")
     {
-
+        textComponent.text = text;
     }
 }

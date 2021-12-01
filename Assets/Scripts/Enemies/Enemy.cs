@@ -39,6 +39,14 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
+    protected virtual void Start()
+    {
+        if (gameObject.activeInHierarchy)
+        {
+            GameManager.Instance.RegisterEnemy(this);
+        }
+    }
+
     /// <summary>
     /// Returns whether the player is within the given range of the enemy.
     /// </summary>
@@ -47,5 +55,14 @@ public abstract class Enemy : MonoBehaviour
     public virtual bool PlayerInRange(float range)
     {
         return Vector2.Distance(transform.position, Player.Instance.transform.position) <= range;
+    }
+
+    protected void OnEnable()
+    {
+        GameManager.Instance.RegisterEnemy(this);
+    }
+    protected void OnDisable()
+    {
+        GameManager.Instance.UnregisterEnemy(this);
     }
 }

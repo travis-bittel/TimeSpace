@@ -33,8 +33,9 @@ public class DemoEnemy : Enemy
     [SerializeField] private float _attackWindup;
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
+        base.Start();
         #region Value Checking
         if (rb == null)
         {

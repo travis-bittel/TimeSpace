@@ -20,10 +20,13 @@ public class Door : MonoBehaviour, Interactable
     /// </summary>
     public void Interact()
     {
-        gameObject.SetActive(false);
-        if (fogOfWar != null)
+        if (GameManager.Instance.NumberOfActiveEnemies() == 0)
         {
-            fogOfWar.SetActive(false);
+            gameObject.SetActive(false);
+            if (fogOfWar != null)
+            {
+                fogOfWar.SetActive(false);
+            }
         }
     }
 }

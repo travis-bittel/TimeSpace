@@ -441,7 +441,7 @@ public class Player : MonoBehaviour
     private void UpdateAmmoText()
     {
         // God I love string interpolation
-        AmmoTextHandler.Instance.UpdateText($"{AmmoRemaining} / {_equippedGun.maxAmmo}");
+        AmmoTextHandler.Instance.UpdateText($"{_ammoRemaining} / {_equippedGun.maxAmmo}");
     }
 
     private void OnAdvanceText()

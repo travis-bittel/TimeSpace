@@ -37,13 +37,19 @@ public class GameManager : MonoBehaviour
     /// Array of all Guns in the game. Use GetGunByID to access elements.
     /// The ID of an element is its index in this array.
     /// </summary>
-    public Gun[] availableGunsByID;
+    [SerializeField]  private Gun[] availableGunsByID;
 
     /// <summary>
     /// A dictionary of (weaponName, Gun) pairs containing all guns in the game.
     /// Use GetGunByName to access elements.
     /// </summary>
-    public Dictionary<string, Gun> availableGunsByName;
+    [SerializeField] private Dictionary<string, Gun> availableGunsByName;
+
+    /// <summary>
+    /// All enemies currently active in the current room. 
+    /// Use RegisterEnemy and UnregisterEnemy to add and remove enemies from this list.
+    /// </summary>
+    [SerializeField] private List<Enemy> activeEnemies;
 
     /// <summary>
     /// Updates the currentRoom field of GameManager, moves the player to the room's
@@ -63,6 +69,7 @@ public class GameManager : MonoBehaviour
         {
             availableGunsByName.Add(availableGunsByID[i].weaponName, availableGunsByID[i]);
         }
+        activeEnemies = new List<Enemy>();
 
         Dialogue.Instance.DisplayDialogue("Hello", "String2", "well done", "IT WORKS!");
     }
@@ -75,5 +82,18 @@ public class GameManager : MonoBehaviour
     public Gun GetGunByID(int id)
     {
         return availableGunsByID[id];
+    }
+
+    public void RegisterEnemy(Enemy enemy)
+    {
+        activeEnemies.Add(enemy);
+    }
+    public void UnregisterEnemy(Enemy enemy)
+    {
+        activeEnemies.Remove(enemy);
+    }
+    public int NumberOfActiveEnemies()
+    {
+        return activeEnemies.Count;
     }
 }
