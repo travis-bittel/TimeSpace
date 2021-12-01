@@ -135,6 +135,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private bool isFiring;
 
+    /// <summary>
+    /// All the interactable entities within range of the player.
+    /// </summary>
+    private List<Interactable> interactables;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -143,6 +148,7 @@ public class Player : MonoBehaviour
 
         InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
         UpdateObjectPool();
+        interactables = new List<Interactable>();
         _ammoRemaining = _equippedGun.maxAmmo;
 
         #region Value Checking
@@ -441,6 +447,37 @@ public class Player : MonoBehaviour
     private void OnAdvanceText()
     {
         Dialogue.Instance.NextLine();
+    }
+
+    /// <summary>
+    /// Interact with the first item in the interactables list and then remove it.
+    /// </summary>
+    private void OnInteract()
+    {
+        if (interactables.Count > 0)
+        {
+            interactables[0].Interact();
+            // We need to check again in case the object gets set inactive by interacting
+            if (interactables.Count > 0)
+            {
+                interactables.RemoveAt(0);
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Interactable"))
+        {
+            interactables.Add(other.GetComponent<Interactable>());
+        }
+    }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Interactable"))
+        {
+            interactables.Remove(other.GetComponent<Interactable>());
+        }
     }
 
     /// <summary>

@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using System;
 using UnityEngine.Assertions;
 
+[RequireComponent(typeof(TextMeshProUGUI))]
 public class Dialogue : MonoBehaviour
 {
     #region Singleton
@@ -31,7 +32,7 @@ public class Dialogue : MonoBehaviour
     }
     #endregion
 
-    public TextMeshProUGUI textComponent;
+    [SerializeField] private TextMeshProUGUI textComponent;
     [SerializeField]  private List<string> lines;
     [SerializeField] private float textSpeed;
     [SerializeField]  private int index;
@@ -42,8 +43,9 @@ public class Dialogue : MonoBehaviour
         //textComponent.text = string.Empty;
         //StartDialogue();
         gameObject.SetActive(false);
-
+        textComponent = GetComponent<TextMeshProUGUI>();
         Assert.IsNotNull(textComponent, "textComponent was null for Dialogue");
+        gameObject.SetActive(false);
     }
 
     void StartDialogue() {
