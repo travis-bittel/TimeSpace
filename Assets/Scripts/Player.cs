@@ -111,6 +111,12 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject rewindMarker;
 
+    /// <summary>
+    /// How many time periods the player moves back when using Rewind.
+    /// </summary>
+    [Tooltip("How many time periods the player moves back when using Rewind.")]
+    [SerializeField] private int numberOfPeriodsToRewind;
+
     public Gun EquippedGun { get => _equippedGun; }
     [SerializeField] private Gun _equippedGun;
 
@@ -300,15 +306,15 @@ public class Player : MonoBehaviour
             }*/
             //transform.position = rewindSavePoints[5].position;
             transform.position = rewindMarker.transform.position;
-            _ammoRemaining = rewindSavePoints[5].ammoCount;
+            _ammoRemaining = rewindSavePoints[numberOfPeriodsToRewind].ammoCount;
             currentRewindCooldownRemaining = _rewindCooldown;
             rewindMarker.SetActive(false);
             UpdateAmmoText();
             for (int i = 0; i < rewindSavePoints.Length; i++)
             {
-                if (i + 5 < rewindSavePoints.Length)
+                if (i + numberOfPeriodsToRewind < rewindSavePoints.Length)
                 {
-                    rewindSavePoints[i] = rewindSavePoints[i + 5];
+                    rewindSavePoints[i] = rewindSavePoints[i + numberOfPeriodsToRewind];
                     //Debug.Log(rewindSavePoints[i + 5].position);
                 } 
                 else
@@ -329,7 +335,7 @@ public class Player : MonoBehaviour
             rewindSavePoints[i] = rewindSavePoints[i - 1];
         }
         rewindSavePoints[0] = new RewindSavePoint(transform.position, _ammoRemaining);
-        if (rewindSavePoints[5] == null || currentRewindCooldownRemaining > 0)
+        if (rewindSavePoints[numberOfPeriodsToRewind] == null || currentRewindCooldownRemaining > 0)
         {
             rewindMarker.SetActive(false);
         } else
