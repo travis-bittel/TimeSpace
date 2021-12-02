@@ -42,10 +42,12 @@ public class Dialogue : MonoBehaviour
     {
         //textComponent.text = string.Empty;
         //StartDialogue();
-        gameObject.SetActive(false);
         textComponent = GetComponentInChildren<TextMeshProUGUI>();
         Assert.IsNotNull(textComponent, "textComponent was null for Dialogue");
-        gameObject.SetActive(false);
+        if (lines.Count == 0)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     void StartDialogue() {

@@ -63,6 +63,9 @@ public abstract class Enemy : MonoBehaviour
     }
     protected void OnDisable()
     {
-        GameManager.Instance.UnregisterEnemy(this);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UnregisterEnemy(this);
+        }
     }
 }
