@@ -286,7 +286,7 @@
                 {
                     "name": "",
                     "id": "e9959d2b-977a-4077-88e9-27d57168041e",
-                    "path": "<Keyboard>/enter",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

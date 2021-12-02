@@ -174,7 +174,10 @@ public class Player : MonoBehaviour
     void Update()
     {
         // Movement
-        rb.position += _velocity * _speed * Time.deltaTime;
+        if (!Dialogue.Instance.DialogueActive)
+        {
+            rb.position += _velocity * _speed * Time.deltaTime;
+        }
 
         if (rewindSavePoints[5] != null)
         {
@@ -231,7 +234,8 @@ public class Player : MonoBehaviour
         if (_isRolling)
         {
             storedVelocity = value.Get<Vector2>();
-        } else if (_canMove)
+        }
+        else if (_canMove)
         {
             _velocity = value.Get<Vector2>();
         }
@@ -239,7 +243,7 @@ public class Player : MonoBehaviour
 
     private void OnDodgeRoll()
     {
-        if (currentDodgeRollCooldownRemaining <= 0)
+        if (!Dialogue.Instance.DialogueActive && currentDodgeRollCooldownRemaining <= 0)
         {
             StartCoroutine(DodgeRoll());
         }
@@ -284,7 +288,7 @@ public class Player : MonoBehaviour
 
     private void OnRewind()
     {
-        if (currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
+        if (!Dialogue.Instance.DialogueActive && currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
         {
             /* *** OLD REWIND ***
              * 
@@ -392,8 +396,11 @@ public class Player : MonoBehaviour
     /// <param name="value"></param>
     private void OnFire(InputValue value)
     {
-        isFiring = value.isPressed;
-        Shoot();
+        if (!Dialogue.Instance.DialogueActive)
+        {
+            isFiring = value.isPressed;
+            Shoot();
+        }
     }
 
     /// <summary>
@@ -423,7 +430,7 @@ public class Player : MonoBehaviour
 
     private void OnReload()
     {
-        if (!IsReloading && AmmoRemaining < _equippedGun.maxAmmo)
+        if (!Dialogue.Instance.DialogueActive && !IsReloading && AmmoRemaining < _equippedGun.maxAmmo)
         {
             StartCoroutine(Reload());
         }
@@ -461,7 +468,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private void OnInteract()
     {
-        if (interactables.Count > 0)
+        if (!Dialogue.Instance.DialogueActive && interactables.Count > 0)
         {
             interactables[0].Interact();
             // We need to check again in case the object gets set inactive by interacting

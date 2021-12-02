@@ -36,6 +36,8 @@ public class Dialogue : MonoBehaviour
     [SerializeField]  private List<string> lines;
     [SerializeField] private float textSpeed;
     [SerializeField]  private int index;
+    [SerializeField] private bool _dialogueActive;
+    public bool DialogueActive { get => _dialogueActive; }
 
     // Start is called before the first frame update
     void Start()
@@ -47,6 +49,7 @@ public class Dialogue : MonoBehaviour
         if (lines.Count == 0)
         {
             gameObject.SetActive(false);
+            _dialogueActive = false;
         }
     }
 
@@ -76,6 +79,7 @@ public class Dialogue : MonoBehaviour
         }
         gameObject.SetActive(true);
         textComponent.text = "";
+        _dialogueActive = true;
         StartDialogue();
     }
 
@@ -96,6 +100,7 @@ public class Dialogue : MonoBehaviour
             else
             {
                 gameObject.SetActive(false);
+                _dialogueActive = false;
             }
         }
         else
