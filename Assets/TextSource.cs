@@ -6,7 +6,7 @@ using UnityEngine;
 /// Attached to a GameObject to trigger the appearance of pop-up text or dialogue when the player moves into its collider.  
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
-public class TextSource : MonoBehaviour
+public class TextSource : MonoBehaviour, Interactable
 {
     [Tooltip("What happens when the player enters the collider. Popup text is displayed below the player; dialogue text halts gameplay.")]
     [SerializeField] private Types type;
@@ -21,6 +21,11 @@ public class TextSource : MonoBehaviour
 
     private float currentCooldown;
 
+    [SerializeField] private bool oneTimeUse;
+
+    [SerializeField] private int _interactionPriority;
+    public int InteractionPriority { get => _interactionPriority;}
+
     private void Start()
     {
         currentCooldown = cooldownPeriod;
@@ -28,28 +33,39 @@ public class TextSource : MonoBehaviour
 
     private void Update()
     {
-        currentCooldown += Time.deltaTime;
+        if (!oneTimeUse)
+        {
+            currentCooldown += Time.deltaTime;
+        }
         if (currentCooldown > cooldownPeriod)
         {
             currentCooldown = cooldownPeriod;
         }
     }
 
+    private void Activate()
+    {
+        switch (type)
+        {
+            case Types.Popup:
+                PopupTextHandler.Instance.UpdatePopupText(text[0], typePopupTextLine);
+                break;
+            case Types.Dialogue:
+                Dialogue.Instance.DisplayDialogue(text);
+                break;
+        }
+
+        currentCooldown = 0;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (currentCooldown >= cooldownPeriod && collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            switch (type)
+            if (currentCooldown >= cooldownPeriod)
             {
-                case Types.Popup:
-                    PopupTextHandler.Instance.UpdatePopupText(text[0], typePopupTextLine);
-                    break;
-                case Types.Dialogue:
-                    Dialogue.Instance.DisplayDialogue(text);
-                    break;
+                Activate();
             }
-
-            currentCooldown = 0;
         }
     }
 
@@ -65,6 +81,11 @@ public class TextSource : MonoBehaviour
                     break;
             }
         }
+    }
+
+    public void Interact()
+    {
+        Activate();
     }
 
     private enum Types

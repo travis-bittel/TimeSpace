@@ -43,6 +43,10 @@ public class AmmoTextHandler : MonoBehaviour
 
     public void UpdateText(string newText)
     {
+        if (text == null)
+        {
+            text = GetComponent<TextMeshProUGUI>();
+        }
         text.text = newText;
     }
 }

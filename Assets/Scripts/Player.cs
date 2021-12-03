@@ -162,6 +162,8 @@ public class Player : MonoBehaviour
         interactables = new List<Interactable>();
         _ammoRemaining = _equippedGun.maxAmmo;
 
+        UpdateAmmoText();
+
         #region Value Checking
         if (rb == null)
         {
@@ -181,13 +183,12 @@ public class Player : MonoBehaviour
         // Movement
         if (!Dialogue.Instance.DialogueActive)
         {
-            Vector2 actualSpeed = _speed;
+            float recentShotModifier = 1;
             if (timeSinceLastShot < (float) 1 / _equippedGun.shotsPerSecond)
             {
-                // We want the speed to increase over time, becoming normal again once the player could shoot again
-                actualSpeed *= 1 - (shootingSpeedMultiplier * (1 - (timeSinceLastShot * _equippedGun.shotsPerSecond)));
+                recentShotModifier = shootingSpeedMultiplier + (1 - shootingSpeedMultiplier) * (timeSinceLastShot * _equippedGun.shotsPerSecond);
             }
-            rb.position += _velocity * actualSpeed * Time.deltaTime;
+            rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
         }
 
         if (rewindSavePoints[5] != null)
@@ -359,6 +360,9 @@ public class Player : MonoBehaviour
             //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
             //rewindMarker.transform.position = rewindSavePoints[5].position;
         }
+
+        // Set the marker to inactive for now!
+        rewindMarker.SetActive(false);
     }
 
     /// <summary>
@@ -393,9 +397,7 @@ public class Player : MonoBehaviour
             if (!obj.activeSelf)
             {
                 Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
-                obj.transform.SetPositionAndRotation(position, rotation);
-                obj.GetComponent<Projectile>().direction = direction;
-                obj.SetActive(true);
+                obj.GetComponent<Projectile>().Initialize(position, rotation, direction);
                 break;
             }
         }
@@ -481,7 +483,19 @@ public class Player : MonoBehaviour
     {
         if (!Dialogue.Instance.DialogueActive && interactables.Count > 0)
         {
-            interactables[0].Interact();
+            // Find the highest priority interactable. Yes, this has an O(n) runtime. No, our version of .NET does not include a PriorityQueue.
+            // No, I don't care. And no, I can't be bothered to find one online at the moment :)
+            int highestPriority = int.MinValue;
+            Interactable toInteractWith = null;
+            foreach (Interactable interactable in interactables)
+            {
+                if (interactable.InteractionPriority > highestPriority)
+                {
+                    toInteractWith = interactable;
+                    highestPriority = interactable.InteractionPriority;
+                }
+            }
+            toInteractWith.Interact();
             // We need to check again in case the object gets set inactive by interacting
             if (interactables.Count > 0)
             {

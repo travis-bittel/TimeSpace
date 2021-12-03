@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
-public class DemoEnemy : Enemy
+public class ShootingEnemy : Enemy
 {
     [SerializeField] private Rigidbody2D rb;
 
@@ -14,23 +13,10 @@ public class DemoEnemy : Enemy
     /// </summary>
     [SerializeField] private State state;
 
-    /// <summary>
-    /// Max distance at which the enemy will attempt to attack the player.
-    /// </summary>
-    public float SwingRange { get { return _swingRange; } }
-    [SerializeField] private float _swingRange;
+    [SerializeField] private GameObject projectile;
 
-    /// <summary>
-    /// Max distance at which the enemy's attack will hit the player.
-    /// </summary>
-    public float HitRange { get { return _hitRange; } }
-    [SerializeField] private float _hitRange;
+    [SerializeField] private float shotCooldown;
 
-    /// <summary>
-    /// Time between attack startup and damage occuring.
-    /// </summary>
-    public float AttackWindup { get { return _attackWindup; } }
-    [SerializeField] private float _attackWindup;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -67,40 +53,26 @@ public class DemoEnemy : Enemy
     /// Action method that does a windup, then an attack which hits the player if they are within hitRange.
     /// </summary>
     /// <returns></returns>
-    private IEnumerator Attack()
+    private IEnumerator Shoot()
     {
-        actionInProgress = Attack;
-        yield return new WaitForSeconds(0.5f);
-        if (PlayerInRange(_hitRange))
-        {
-            Debug.Log("Hit!");
-        }
-        else
-        {
-            Debug.Log("Miss!");
-        }
-        if (!PlayerInRange(_swingRange))
-        {
-            state = State.Moving;
-        }
+        actionInProgress = Shoot;
+        InitializeProjectile();
+        yield return new WaitForSeconds(0.15f);
+        InitializeProjectile();
+        yield return new WaitForSeconds(0.15f);
+        InitializeProjectile();
+        yield return new WaitForSeconds(shotCooldown);
+
         actionInProgress = null;
     }
 
-    /// <summary>
-    /// Action method to move towards the player.
-    /// This is an IEnumerator just so it works with the same delegate type as all other action methods.
-    /// Yes, this means every action method should be of return type IEnumerator. Use yield return null
-    /// to keep the compiler happy.
-    /// </summary>
-    /// <returns>Nothing lmao</returns>
-    private IEnumerator Move()
-    { 
-        transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
-        if (PlayerInRange(_swingRange))
-        {
-            state = State.Attacking;
-        }
-        yield return null;
+    private void InitializeProjectile()
+    {
+        GameObject obj = Instantiate(projectile);
+
+        Vector2 direction = new Vector2(transform.position.x, transform.position.y) - new Vector2(Player.Instance.transform.position.x, Player.Instance.transform.position.y);
+        Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
+        obj.GetComponent<Projectile>().Initialize(transform.position, rotation, direction);
     }
 
     /// <summary>
@@ -112,10 +84,8 @@ public class DemoEnemy : Enemy
     {
         switch (state)
         {
-            case State.Attacking:
-                return Attack;
-            case State.Moving:
-                return Move;
+            case State.Shooting:
+                return Shoot;
             default:
                 return null;
         }
@@ -128,7 +98,7 @@ public class DemoEnemy : Enemy
     /// </summary>
     private enum State
     {
-        Attacking,
-        Moving
+        Shooting,
+        Idle
     }
 }

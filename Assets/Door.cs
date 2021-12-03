@@ -14,6 +14,9 @@ public class Door : MonoBehaviour, Interactable
     /// </summary>
     [SerializeField] private List<Enemy> enemies;
 
+    [SerializeField] private int _interactionPriority;
+    public int InteractionPriority { get => _interactionPriority; }
+
     /// <summary>
     /// Call to open the door and remove the attached fog of war, if any.
     /// </summary>
@@ -28,7 +31,10 @@ public class Door : MonoBehaviour, Interactable
             }
             foreach (Enemy enemy in enemies)
             {
-                enemy.gameObject.SetActive(true);
+                if (enemy != null)
+                {
+                    enemy.gameObject.SetActive(true);
+                }
             }
         }
     }
