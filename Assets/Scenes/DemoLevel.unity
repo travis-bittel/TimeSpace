@@ -123,6 +123,49 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &154690016
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 154690018}
+  - component: {fileID: 154690017}
+  m_Layer: 0
+  m_Name: TextSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &154690017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 154690016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ab0ce7eac36423499c8343b9ffacb1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &154690018
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 154690016}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.140848, y: 0.22002314, z: -0.47745347}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &155086407 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4795583604643984430, guid: 9902e07fa38f4634aaae88f5d1dbaeaa, type: 3}
@@ -5451,6 +5494,14 @@ PrefabInstance:
       propertyPath: rewindMarker
       value: 
       objectReference: {fileID: 663641375}
+    - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+      propertyPath: rewindMarkerLerpFactor
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
+      propertyPath: numberOfPeriodsToRewind
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 8468957235040195826, guid: 793ce1956b546934bae2f62ce37613a8, type: 3}
       propertyPath: interactables.Array.size
       value: 0

@@ -146,6 +146,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private List<Interactable> interactables;
 
+    /// <summary>
+    /// Speed penalty applied for a short time after the player shoots.
+    /// </summary>
+    [SerializeField] private float shootingSpeedMultiplier;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -176,7 +181,13 @@ public class Player : MonoBehaviour
         // Movement
         if (!Dialogue.Instance.DialogueActive)
         {
-            rb.position += _velocity * _speed * Time.deltaTime;
+            Vector2 actualSpeed = _speed;
+            if (timeSinceLastShot < (float) 1 / _equippedGun.shotsPerSecond)
+            {
+                // We want the speed to increase over time, becoming normal again once the player could shoot again
+                actualSpeed *= 1 - (shootingSpeedMultiplier * (1 - (timeSinceLastShot * _equippedGun.shotsPerSecond)));
+            }
+            rb.position += _velocity * actualSpeed * Time.deltaTime;
         }
 
         if (rewindSavePoints[5] != null)
