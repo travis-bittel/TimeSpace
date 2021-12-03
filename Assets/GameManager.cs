@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
         }
         activeEnemies = new List<Enemy>();
 
-        Dialogue.Instance.DisplayDialogue("Hello", "String2", "well done", "IT WORKS!");
+        //Dialogue.Instance.DisplayDialogue("Hello", "String2", "well done", "IT WORKS!");
     }
 
     public Gun GetGunByName(string name)

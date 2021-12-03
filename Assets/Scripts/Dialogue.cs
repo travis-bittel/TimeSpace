@@ -86,27 +86,30 @@ public class Dialogue : MonoBehaviour
     /// <summary>
     /// Advance to the next line of dialogue. Should typically be called by the Player script when the correct input is registered.
     /// </summary>
-    public void NextLine() {
-
-        // If the current line is completely typed
-        if (textComponent.text == lines[index])
+    public void NextLine()
+    {
+        if (_dialogueActive && index < lines.Count)
         {
-            if (index < lines.Count - 1)
+            // If the current line is completely typed
+            if (textComponent.text == lines[index])
             {
-                index++;
-                textComponent.text = string.Empty;
-                StartCoroutine(TypeLine());
+                if (index < lines.Count - 1)
+                {
+                    index++;
+                    textComponent.text = string.Empty;
+                    StartCoroutine(TypeLine());
+                }
+                else
+                {
+                    gameObject.SetActive(false);
+                    _dialogueActive = false;
+                }
             }
             else
             {
-                gameObject.SetActive(false);
-                _dialogueActive = false;
+                StopAllCoroutines();
+                textComponent.text = lines[index];
             }
-        }
-        else
-        {
-            StopAllCoroutines();
-            textComponent.text = lines[index];
         }
     }
 }

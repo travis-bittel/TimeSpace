@@ -40,11 +40,29 @@ public class PopupTextHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// Change the currently displayed popup text.  
-    /// Call with no args to hide text.
+    /// Change the currently displayed popup text. Call with no args to hide text.
     /// </summary>
-    public void UpdatePopupText(string text = "")
+    /// <param name="text"></param>
+    /// <param name="typeLine">Whether to "type" the text one character at a time or display it all immediately.</param>
+    public void UpdatePopupText(string text = "", bool typeLine = false)
     {
-        textComponent.text = text;
+        StopAllCoroutines();
+        if (typeLine)
+        {
+            StartCoroutine(TypeLine(text));
+        } else
+        {
+            textComponent.text = text;
+        }
+    }
+
+    IEnumerator TypeLine(string text)
+    {
+        textComponent.text = "";
+        foreach (char c in text.ToCharArray())
+        {
+            textComponent.text += c;
+            yield return new WaitForSeconds(0.075f);
+        }
     }
 }
