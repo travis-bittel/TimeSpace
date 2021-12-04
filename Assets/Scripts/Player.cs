@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     #endregion
 
     public float Health { get => _health; }
+    [Header("Core Attributes")]
     [SerializeField] private float _health;
 
     public float MaxHealth { get => _maxHealth; }
@@ -66,6 +67,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
 
     public float DodgeRollSpeedMultiplier { get => _dodgeRollSpeedMultiplier; }
+    [Header("Dodge Roll")]
     [SerializeField] private float _dodgeRollSpeedMultiplier;
 
     public float DodgeRollDuration { get => _dodgeRollDuration; }
@@ -96,8 +98,8 @@ public class Player : MonoBehaviour
     /// Cooldown between uses of Rewind. The cooldown starts when the player teleports back to the marker position.
     /// </summary>
     public float RewindCooldown { get { return _rewindCooldown; } }
-    [SerializeField]
-    private float _rewindCooldown;
+    [Header("Rewind")]
+    [SerializeField] private float _rewindCooldown;
 
     /// <summary>
     /// Lerp multiplier for the rewind marker. Determines how fast the rewind marker moves. High values may make movement look choppy.
@@ -111,6 +113,8 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject rewindMarker;
 
+    [SerializeField] private bool canRewind;
+
     /// <summary>
     /// How many time periods the player moves back when using Rewind.
     /// </summary>
@@ -118,6 +122,7 @@ public class Player : MonoBehaviour
     [SerializeField] private int numberOfPeriodsToRewind;
 
     public Gun EquippedGun { get => _equippedGun; }
+    [Header("Gun")]
     [SerializeField] private Gun _equippedGun;
 
     /// <summary>
@@ -181,7 +186,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         // Movement
-        if (!Dialogue.Instance.DialogueActive)
+        if (Dialogue.Instance != null && !Dialogue.Instance.DialogueActive)
         {
             float recentShotModifier = 1;
             if (timeSinceLastShot < (float) 1 / _equippedGun.shotsPerSecond)
@@ -414,7 +419,7 @@ public class Player : MonoBehaviour
     /// <param name="value"></param>
     private void OnFire(InputValue value)
     {
-        if (!Dialogue.Instance.DialogueActive)
+        if (Dialogue.Instance != null && !Dialogue.Instance.DialogueActive)
         {
             isFiring = value.isPressed;
             Shoot();

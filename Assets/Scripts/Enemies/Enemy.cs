@@ -26,6 +26,8 @@ public abstract class Enemy : MonoBehaviour
     /// </summary>
     protected ActionDelegate actionInProgress;
 
+    protected HealthbarHandler healthbar;
+
     /// <summary>
     /// Deals the specified amount of damage to the enemy and kills them if health is &lt;=0 after the damage is applied.
     /// </summary>
@@ -33,6 +35,10 @@ public abstract class Enemy : MonoBehaviour
     public virtual void Damage(float amount)
     {
         _health -= amount;
+        if (healthbar != null)
+        {
+            healthbar.UpdateHealthbar(_health);
+        }
         if (_health <= 0)
         {
             gameObject.SetActive(false);
@@ -45,6 +51,16 @@ public abstract class Enemy : MonoBehaviour
         {
             GameManager.Instance.RegisterEnemy(this);
         }
+        // This looks weird, but we want to support not having a healthbar on the enemy
+        if (healthbar == null)
+        {
+            healthbar = GetComponentInChildren<HealthbarHandler>();
+        }
+        if (healthbar != null)
+        {
+            healthbar.InitializeHealthbar(_maxHealth);
+        }
+        _health = _maxHealth;
     }
 
     /// <summary>

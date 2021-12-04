@@ -52,6 +52,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<Enemy> activeEnemies;
 
     /// <summary>
+    /// We want the GameManager to have a reference to the Canvas so it can enable it on start.
+    /// This helps since when building levels we often want to leave the canvas disabled.
+    /// </summary>
+    [SerializeField] private GameObject canvas;
+
+    /// <summary>
     /// Updates the currentRoom field of GameManager, moves the player to the room's
     /// player start position, and moves the camera to the room's camera start position.
     /// </summary>
@@ -70,6 +76,7 @@ public class GameManager : MonoBehaviour
             availableGunsByName.Add(availableGunsByID[i].weaponName, availableGunsByID[i]);
         }
         activeEnemies = new List<Enemy>();
+        canvas.SetActive(true);
 
         //Dialogue.Instance.DisplayDialogue("Hello", "String2", "well done", "IT WORKS!");
     }
