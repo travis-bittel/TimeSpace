@@ -168,6 +168,7 @@ public class Player : MonoBehaviour
         _ammoRemaining = _equippedGun.maxAmmo;
 
         UpdateAmmoText();
+        PlayerHealthbarManager.Instance.UpdateHealthbar();
 
         #region Value Checking
         if (rb == null)
@@ -236,6 +237,7 @@ public class Player : MonoBehaviour
     public void Damage(float amount)
     {
         _health -= amount;
+        PlayerHealthbarManager.Instance.UpdateHealthbar();
         if (_health <= 0)
         {
             // Die
@@ -305,7 +307,7 @@ public class Player : MonoBehaviour
 
     private void OnRewind()
     {
-        if (!Dialogue.Instance.DialogueActive && currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
+        if (canRewind && !Dialogue.Instance.DialogueActive && currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
         {
             /* *** OLD REWIND ***
              * 

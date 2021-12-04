@@ -68,11 +68,11 @@ public class Projectile : MonoBehaviour
         {
             if (Player.Instance.AmmoRemaining == 0)
             {
-                other.GetComponent<Enemy>().Damage(finalShotDamage);
+                other.GetComponent<Entity>().Damage(finalShotDamage);
             }
             else
             {
-                other.GetComponent<Enemy>().Damage(damage);
+                other.GetComponent<Entity>().Damage(damage);
             }
             gameObject.SetActive(false);
         }

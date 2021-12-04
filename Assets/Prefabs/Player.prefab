@@ -466,12 +466,13 @@ MonoBehaviour:
   _rewindCooldown: 5
   rewindMarkerLerpFactor: 3
   rewindMarker: {fileID: 0}
-  numberOfPeriodsToRewind: 0
+  canRewind: 1
+  numberOfPeriodsToRewind: 10
   _equippedGun: {fileID: 11400000, guid: 5b21fe2e364393d4290995b1824684ff, type: 2}
   timeSinceLastShot: 0
   _ammoRemaining: 0
   _isReloading: 0
-  shootingSpeedMultiplier: 0
+  shootingSpeedMultiplier: 0.75
 --- !u!114 &8468957235040195823
 MonoBehaviour:
   m_ObjectHideFlags: 0

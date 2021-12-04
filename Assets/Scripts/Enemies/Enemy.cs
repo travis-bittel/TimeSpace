@@ -5,20 +5,8 @@ using UnityEngine;
 /// <summary>
 /// Base class for all enemies. Contains global functionality like health and taking damage.
 /// </summary>
-public abstract class Enemy : MonoBehaviour
+public abstract class Enemy : Entity
 {
-    public float Health { get { return _health; } }
-    [SerializeField] protected float _health;
-
-    public float MaxHealth { get { return _maxHealth; } }
-    [SerializeField] protected float _maxHealth;
-
-    public bool IsInvulnerable { get { return _isInvulnerable; } }
-    [SerializeField] protected bool _isInvulnerable;
-
-    public Vector2 Speed { get { return _speed; } }
-    [SerializeField] protected Vector2 _speed;
-
     protected delegate IEnumerator ActionDelegate();
     /// <summary>
     /// Used to prevent starting an action when we are already in the middle of one, such as an attack.
@@ -26,31 +14,13 @@ public abstract class Enemy : MonoBehaviour
     /// </summary>
     protected ActionDelegate actionInProgress;
 
-    protected HealthbarHandler healthbar;
-
-    /// <summary>
-    /// Deals the specified amount of damage to the enemy and kills them if health is &lt;=0 after the damage is applied.
-    /// </summary>
-    /// <param name="amount"></param>
-    public virtual void Damage(float amount)
-    {
-        _health -= amount;
-        if (healthbar != null)
-        {
-            healthbar.UpdateHealthbar(_health);
-        }
-        if (_health <= 0)
-        {
-            gameObject.SetActive(false);
-        }
-    }
-
-    protected virtual void Start()
+    protected override void Start()
     {
         if (gameObject.activeInHierarchy)
         {
             GameManager.Instance.RegisterEnemy(this);
         }
+        _health = _maxHealth;
         // This looks weird, but we want to support not having a healthbar on the enemy
         if (healthbar == null)
         {
@@ -58,19 +28,9 @@ public abstract class Enemy : MonoBehaviour
         }
         if (healthbar != null)
         {
-            healthbar.InitializeHealthbar(_maxHealth);
+            healthbar.InitializeHealthbar(_maxHealth, _health);
         }
-        _health = _maxHealth;
-    }
 
-    /// <summary>
-    /// Returns whether the player is within the given range of the enemy.
-    /// </summary>
-    /// <param name="range"></param>
-    /// <returns></returns>
-    public virtual bool PlayerInRange(float range)
-    {
-        return Vector2.Distance(transform.position, Player.Instance.transform.position) <= range;
     }
 
     protected void OnEnable()
