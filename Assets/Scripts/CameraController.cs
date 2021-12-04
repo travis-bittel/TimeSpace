@@ -19,6 +19,10 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         defaultCameraZ = -10f;
+        if (playerTransform == null)
+        {
+            playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        }
     }
 
     // Update is called once per frame

@@ -191,7 +191,7 @@ public class Player : MonoBehaviour
             rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
         }
 
-        if (rewindSavePoints[5] != null)
+        if (rewindSavePoints[5] != null && rewindMarker != null)
         {
             rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
         }
@@ -351,18 +351,23 @@ public class Player : MonoBehaviour
             rewindSavePoints[i] = rewindSavePoints[i - 1];
         }
         rewindSavePoints[0] = new RewindSavePoint(transform.position, _ammoRemaining);
-        if (rewindSavePoints[numberOfPeriodsToRewind] == null || currentRewindCooldownRemaining > 0)
-        {
-            rewindMarker.SetActive(false);
-        } else
-        {
-            rewindMarker.SetActive(true);
-            //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
-            //rewindMarker.transform.position = rewindSavePoints[5].position;
-        }
 
-        // Set the marker to inactive for now!
-        rewindMarker.SetActive(false);
+        if (rewindMarker != null)
+        {
+            if (rewindSavePoints[numberOfPeriodsToRewind] == null || currentRewindCooldownRemaining > 0)
+            {
+                rewindMarker.SetActive(false);
+            }
+            else
+            {
+                rewindMarker.SetActive(true);
+                //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
+                //rewindMarker.transform.position = rewindSavePoints[5].position;
+            }
+
+            // Set the marker to inactive for demo purposes
+            rewindMarker.SetActive(false);
+        }
     }
 
     /// <summary>
