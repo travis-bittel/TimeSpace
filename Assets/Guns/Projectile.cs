@@ -11,6 +11,10 @@ public class Projectile : MonoBehaviour
     public float damage;
     public float speed;
 
+    public bool hitPlayer;
+
+    public bool destroyWhenDeactivated;
+
     [Header("Final Projectile Properties")]
     public float finalShotDamage;
     public float finalShotSpeed;
@@ -24,15 +28,20 @@ public class Projectile : MonoBehaviour
         Assert.AreNotEqual(finalShotSpeed, 0, "Projectile final shot speed was set to 0");
     }
 
-    private void OnEnable()
+    public void Initialize(Vector2 position, Quaternion rotation, Vector2 direction)
     {
+        transform.SetPositionAndRotation(position, rotation);
+        this.direction = direction;
+        gameObject.SetActive(true);
+
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
 
         if (Player.Instance.AmmoRemaining == 0)
         {
             rb.velocity = direction * (-finalShotSpeed);
-        } else
+        }
+        else
         {
             rb.velocity = direction * (-speed);
         }
@@ -41,7 +50,8 @@ public class Projectile : MonoBehaviour
         if (Player.Instance.AmmoRemaining == 0)
         {
             GetComponent<SpriteRenderer>().color = Color.red;
-        } else
+        }
+        else
         {
             GetComponent<SpriteRenderer>().color = Color.white;
         }
@@ -49,15 +59,20 @@ public class Projectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Player") && hitPlayer && !Player.Instance.IsInvulnerable)
+        {
+            Player.Instance.Damage(damage);
+            gameObject.SetActive(false);
+        }
+        if (other.CompareTag("Enemy") && !hitPlayer)
         {
             if (Player.Instance.AmmoRemaining == 0)
             {
-                other.GetComponent<Enemy>().Damage(finalShotDamage);
+                other.GetComponent<Entity>().Damage(finalShotDamage);
             }
             else
             {
-                other.GetComponent<Enemy>().Damage(damage);
+                other.GetComponent<Entity>().Damage(damage);
             }
             gameObject.SetActive(false);
         }
@@ -66,6 +81,14 @@ public class Projectile : MonoBehaviour
         if (other.CompareTag("Room"))
         {
             gameObject.SetActive(false);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (destroyWhenDeactivated)
+        {
+            Destroy(gameObject);
         }
     }
 }

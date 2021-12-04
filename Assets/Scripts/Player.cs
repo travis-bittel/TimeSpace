@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     #endregion
 
     public float Health { get => _health; }
+    [Header("Core Attributes")]
     [SerializeField] private float _health;
 
     public float MaxHealth { get => _maxHealth; }
@@ -66,6 +67,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
 
     public float DodgeRollSpeedMultiplier { get => _dodgeRollSpeedMultiplier; }
+    [Header("Dodge Roll")]
     [SerializeField] private float _dodgeRollSpeedMultiplier;
 
     public float DodgeRollDuration { get => _dodgeRollDuration; }
@@ -96,8 +98,8 @@ public class Player : MonoBehaviour
     /// Cooldown between uses of Rewind. The cooldown starts when the player teleports back to the marker position.
     /// </summary>
     public float RewindCooldown { get { return _rewindCooldown; } }
-    [SerializeField]
-    private float _rewindCooldown;
+    [Header("Rewind")]
+    [SerializeField] private float _rewindCooldown;
 
     /// <summary>
     /// Lerp multiplier for the rewind marker. Determines how fast the rewind marker moves. High values may make movement look choppy.
@@ -111,7 +113,16 @@ public class Player : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject rewindMarker;
 
+    [SerializeField] private bool canRewind;
+
+    /// <summary>
+    /// How many time periods the player moves back when using Rewind.
+    /// </summary>
+    [Tooltip("How many time periods the player moves back when using Rewind.")]
+    [SerializeField] private int numberOfPeriodsToRewind;
+
     public Gun EquippedGun { get => _equippedGun; }
+    [Header("Gun")]
     [SerializeField] private Gun _equippedGun;
 
     /// <summary>
@@ -135,6 +146,16 @@ public class Player : MonoBehaviour
     /// </summary>
     private bool isFiring;
 
+    /// <summary>
+    /// All the interactable entities within range of the player.
+    /// </summary>
+    private List<Interactable> interactables;
+
+    /// <summary>
+    /// Speed penalty applied for a short time after the player shoots.
+    /// </summary>
+    [SerializeField] private float shootingSpeedMultiplier;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -143,7 +164,11 @@ public class Player : MonoBehaviour
 
         InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
         UpdateObjectPool();
+        interactables = new List<Interactable>();
         _ammoRemaining = _equippedGun.maxAmmo;
+
+        UpdateAmmoText();
+        PlayerHealthbarManager.Instance.UpdateHealthbar();
 
         #region Value Checking
         if (rb == null)
@@ -162,9 +187,17 @@ public class Player : MonoBehaviour
     void Update()
     {
         // Movement
-        rb.position += _velocity * _speed * Time.deltaTime;
+        if (Dialogue.Instance != null && !Dialogue.Instance.DialogueActive)
+        {
+            float recentShotModifier = 1;
+            if (timeSinceLastShot < (float) 1 / _equippedGun.shotsPerSecond)
+            {
+                recentShotModifier = shootingSpeedMultiplier + (1 - shootingSpeedMultiplier) * (timeSinceLastShot * _equippedGun.shotsPerSecond);
+            }
+            rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
+        }
 
-        if (rewindSavePoints[5] != null)
+        if (rewindSavePoints[5] != null && rewindMarker != null)
         {
             rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
         }
@@ -204,6 +237,7 @@ public class Player : MonoBehaviour
     public void Damage(float amount)
     {
         _health -= amount;
+        PlayerHealthbarManager.Instance.UpdateHealthbar();
         if (_health <= 0)
         {
             // Die
@@ -219,7 +253,8 @@ public class Player : MonoBehaviour
         if (_isRolling)
         {
             storedVelocity = value.Get<Vector2>();
-        } else if (_canMove)
+        }
+        else if (_canMove)
         {
             _velocity = value.Get<Vector2>();
         }
@@ -227,7 +262,7 @@ public class Player : MonoBehaviour
 
     private void OnDodgeRoll()
     {
-        if (currentDodgeRollCooldownRemaining <= 0)
+        if (!Dialogue.Instance.DialogueActive && currentDodgeRollCooldownRemaining <= 0)
         {
             StartCoroutine(DodgeRoll());
         }
@@ -272,7 +307,7 @@ public class Player : MonoBehaviour
 
     private void OnRewind()
     {
-        if (currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
+        if (canRewind && !Dialogue.Instance.DialogueActive && currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
         {
             /* *** OLD REWIND ***
              * 
@@ -294,13 +329,15 @@ public class Player : MonoBehaviour
             }*/
             //transform.position = rewindSavePoints[5].position;
             transform.position = rewindMarker.transform.position;
-            _ammoRemaining = rewindSavePoints[5].ammoCount;
+            _ammoRemaining = rewindSavePoints[numberOfPeriodsToRewind].ammoCount;
+            currentRewindCooldownRemaining = _rewindCooldown;
+            rewindMarker.SetActive(false);
             UpdateAmmoText();
             for (int i = 0; i < rewindSavePoints.Length; i++)
             {
-                if (i + 5 < rewindSavePoints.Length)
+                if (i + numberOfPeriodsToRewind < rewindSavePoints.Length)
                 {
-                    rewindSavePoints[i] = rewindSavePoints[i + 5];
+                    rewindSavePoints[i] = rewindSavePoints[i + numberOfPeriodsToRewind];
                     //Debug.Log(rewindSavePoints[i + 5].position);
                 } 
                 else
@@ -321,14 +358,22 @@ public class Player : MonoBehaviour
             rewindSavePoints[i] = rewindSavePoints[i - 1];
         }
         rewindSavePoints[0] = new RewindSavePoint(transform.position, _ammoRemaining);
-        if (rewindSavePoints[5] == null)
+
+        if (rewindMarker != null)
         {
+            if (rewindSavePoints[numberOfPeriodsToRewind] == null || currentRewindCooldownRemaining > 0)
+            {
+                rewindMarker.SetActive(false);
+            }
+            else
+            {
+                rewindMarker.SetActive(true);
+                //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
+                //rewindMarker.transform.position = rewindSavePoints[5].position;
+            }
+
+            // Set the marker to inactive for demo purposes
             rewindMarker.SetActive(false);
-        } else
-        {
-            rewindMarker.SetActive(true);
-            //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
-            //rewindMarker.transform.position = rewindSavePoints[5].position;
         }
     }
 
@@ -364,9 +409,7 @@ public class Player : MonoBehaviour
             if (!obj.activeSelf)
             {
                 Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
-                obj.transform.SetPositionAndRotation(position, rotation);
-                obj.GetComponent<Projectile>().direction = direction;
-                obj.SetActive(true);
+                obj.GetComponent<Projectile>().Initialize(position, rotation, direction);
                 break;
             }
         }
@@ -378,8 +421,11 @@ public class Player : MonoBehaviour
     /// <param name="value"></param>
     private void OnFire(InputValue value)
     {
-        isFiring = value.isPressed;
-        Shoot();
+        if (Dialogue.Instance != null && !Dialogue.Instance.DialogueActive)
+        {
+            isFiring = value.isPressed;
+            Shoot();
+        }
     }
 
     /// <summary>
@@ -409,7 +455,7 @@ public class Player : MonoBehaviour
 
     private void OnReload()
     {
-        if (!IsReloading && AmmoRemaining < _equippedGun.maxAmmo)
+        if (!Dialogue.Instance.DialogueActive && !IsReloading && AmmoRemaining < _equippedGun.maxAmmo)
         {
             StartCoroutine(Reload());
         }
@@ -434,7 +480,55 @@ public class Player : MonoBehaviour
     private void UpdateAmmoText()
     {
         // God I love string interpolation
-        AmmoTextHandler.Instance.UpdateText($"{AmmoRemaining} / {_equippedGun.maxAmmo}");
+        AmmoTextHandler.Instance.UpdateText($"{_ammoRemaining} / {_equippedGun.maxAmmo}");
+    }
+
+    private void OnAdvanceText()
+    {
+        Dialogue.Instance.NextLine();
+    }
+
+    /// <summary>
+    /// Interact with the first item in the interactables list and then remove it.
+    /// </summary>
+    private void OnInteract()
+    {
+        if (!Dialogue.Instance.DialogueActive && interactables.Count > 0)
+        {
+            // Find the highest priority interactable. Yes, this has an O(n) runtime. No, our version of .NET does not include a PriorityQueue.
+            // No, I don't care. And no, I can't be bothered to find one online at the moment :)
+            int highestPriority = int.MinValue;
+            Interactable toInteractWith = null;
+            foreach (Interactable interactable in interactables)
+            {
+                if (interactable.InteractionPriority > highestPriority)
+                {
+                    toInteractWith = interactable;
+                    highestPriority = interactable.InteractionPriority;
+                }
+            }
+            toInteractWith.Interact();
+            // We need to check again in case the object gets set inactive by interacting
+            if (interactables.Count > 0)
+            {
+                interactables.RemoveAt(0);
+            }
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Interactable"))
+        {
+            interactables.Add(other.GetComponent<Interactable>());
+        }
+    }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Interactable"))
+        {
+            interactables.Remove(other.GetComponent<Interactable>());
+        }
     }
 
     /// <summary>

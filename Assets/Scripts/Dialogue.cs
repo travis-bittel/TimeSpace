@@ -3,36 +3,53 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem;
+using System;
+using UnityEngine.Assertions;
 
+[RequireComponent(typeof(TextMeshProUGUI))]
 public class Dialogue : MonoBehaviour
 {
-    public TextMeshProUGUI textComponent;
-    public string[] lines;
-    public float textSpeed;
-    private int index;
-    public InputAction proceed;
+    #region Singleton
+    private static Dialogue _instance;
+
+    public static Dialogue Instance { get => _instance; }
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (this == _instance) { _instance = null; }
+    }
+    #endregion
+
+    [SerializeField] private TextMeshProUGUI textComponent;
+    [SerializeField]  private List<string> lines;
+    [SerializeField] private float textSpeed;
+    [SerializeField]  private int index;
+    [SerializeField] private bool _dialogueActive;
+    public bool DialogueActive { get => _dialogueActive; }
 
     // Start is called before the first frame update
     void Start()
     {
-        textComponent.text = string.Empty;
-        StartDialogue();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame) {
-            if (textComponent.text == lines[index])
-            {
-                NextLine();
-                Debug.Log("next");
-            }
-            else {
-                StopAllCoroutines();
-                textComponent.text = lines[index];
-                Debug.Log("End");
-            }
+        //textComponent.text = string.Empty;
+        //StartDialogue();
+        textComponent = GetComponentInChildren<TextMeshProUGUI>();
+        Assert.IsNotNull(textComponent, "textComponent was null for Dialogue");
+        if (lines.Count == 0)
+        {
+            gameObject.SetActive(false);
+            _dialogueActive = false;
         }
     }
 
@@ -48,15 +65,51 @@ public class Dialogue : MonoBehaviour
         }
     }
 
-    void NextLine() {
-        if (index < lines.Length - 1)
+    /// <summary>
+    /// Clear the current set of dialogue lines and start a new one. 
+    /// Also causes the dialogue box to become active if it was not already.
+    /// </summary>
+    /// <param name="dialogue"></param>
+    public void DisplayDialogue(params string[] dialogue)
+    {
+        lines = new List<string>();
+        foreach (string str in dialogue)
         {
-            index++;
-            textComponent.text = string.Empty;
-            StartCoroutine(TypeLine());
+            lines.Add(str);
         }
-        else {
-            gameObject.SetActive(false);
+        gameObject.SetActive(true);
+        textComponent.text = "";
+        _dialogueActive = true;
+        StartDialogue();
+    }
+
+    /// <summary>
+    /// Advance to the next line of dialogue. Should typically be called by the Player script when the correct input is registered.
+    /// </summary>
+    public void NextLine()
+    {
+        if (_dialogueActive && index < lines.Count)
+        {
+            // If the current line is completely typed
+            if (textComponent.text == lines[index])
+            {
+                if (index < lines.Count - 1)
+                {
+                    index++;
+                    textComponent.text = string.Empty;
+                    StartCoroutine(TypeLine());
+                }
+                else
+                {
+                    gameObject.SetActive(false);
+                    _dialogueActive = false;
+                }
+            }
+            else
+            {
+                StopAllCoroutines();
+                textComponent.text = lines[index];
+            }
         }
     }
 }
