@@ -14,6 +14,13 @@ public class Player : MonoBehaviour
 
     public static Player Instance { get => _instance; }
 
+    private AudioSource audio;
+    [SerializeField] private AudioClip dodge;
+    [SerializeField] private AudioClip rewind;
+    [SerializeField] private AudioClip gun;
+    [SerializeField] private AudioClip reload;
+
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -181,6 +188,8 @@ public class Player : MonoBehaviour
         Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
         Assert.AreNotEqual(rewindMarkerLerpFactor, 0, "Rewind Marker Lerp Factor was set to 0");
         #endregion
+
+        audio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -264,6 +273,7 @@ public class Player : MonoBehaviour
     {
         if (!Dialogue.Instance.DialogueActive && currentDodgeRollCooldownRemaining <= 0)
         {
+            audio.PlayOneShot(dodge, 0.9F);
             StartCoroutine(DodgeRoll());
         }
     }
@@ -328,6 +338,7 @@ public class Player : MonoBehaviour
                 currentRewindCooldownRemaining = _rewindCooldown;
             }*/
             //transform.position = rewindSavePoints[5].position;
+            audio.PlayOneShot(rewind, 0.8F);
             transform.position = rewindMarker.transform.position;
             _ammoRemaining = rewindSavePoints[numberOfPeriodsToRewind].ammoCount;
             currentRewindCooldownRemaining = _rewindCooldown;
@@ -437,6 +448,7 @@ public class Player : MonoBehaviour
         {
             if (AmmoRemaining > 0)
             {
+                audio.PlayOneShot(gun, 0.4F);
                 Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
                 direction.Normalize();
@@ -463,6 +475,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator Reload()
     {
+        audio.PlayOneShot(reload, 0.5F);
         ReloadSliderManager.Instance.SetReloadBarActive(true);
         _isReloading = true;
         // We need to track the reload progress for the reload bar display
