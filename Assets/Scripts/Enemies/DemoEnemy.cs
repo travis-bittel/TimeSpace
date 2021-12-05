@@ -32,6 +32,10 @@ public class DemoEnemy : Enemy
     public float AttackWindup { get { return _attackWindup; } }
     [SerializeField] private float _attackWindup;
 
+    [SerializeField] private float detectRange;
+
+    [SerializeField] private float attackDamage;
+
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -73,11 +77,7 @@ public class DemoEnemy : Enemy
         yield return new WaitForSeconds(0.5f);
         if (PlayerInRange(_hitRange))
         {
-            Debug.Log("Hit!");
-        }
-        else
-        {
-            Debug.Log("Miss!");
+            Player.Instance.Damage(attackDamage);
         }
         if (!PlayerInRange(_swingRange))
         {
@@ -95,10 +95,14 @@ public class DemoEnemy : Enemy
     /// <returns>Nothing lmao</returns>
     private IEnumerator Move()
     { 
-        transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
-        if (PlayerInRange(_swingRange))
+        // Only attack if damaged or player is within range
+        if (PlayerInRange(detectRange) || _health < _maxHealth)
         {
-            state = State.Attacking;
+            transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
+            if (PlayerInRange(_swingRange))
+            {
+                state = State.Attacking;
+            }
         }
         yield return null;
     }
