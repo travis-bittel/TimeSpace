@@ -8253,14 +8253,6 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 59871869698318897, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 838
-      objectReference: {fileID: 0}
-    - target: {fileID: 59871869698318897, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -110
-      objectReference: {fileID: 0}
     - target: {fileID: 1584042208407164155, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -8348,18 +8340,6 @@ PrefabInstance:
     - target: {fileID: 1584042208407164159, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
       propertyPath: m_Name
       value: Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 5800162191712950620, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
-      propertyPath: m_fontSize
-      value: 70
-      objectReference: {fileID: 0}
-    - target: {fileID: 5800162191712950620, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
-      propertyPath: m_margin.x
-      value: -176.326
-      objectReference: {fileID: 0}
-    - target: {fileID: 5800162191712950620, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 70
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e365ebecd2f3ecc499d3579be9e5614c, type: 3}
