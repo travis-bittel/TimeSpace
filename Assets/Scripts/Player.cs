@@ -169,9 +169,9 @@ public class Player : MonoBehaviour
     void Start()
     {
         _health = _maxHealth;
-        rewindSavePoints = new RewindSavePoint[25];
+        rewindSavePoints = new RewindSavePoint[numberOfPeriodsToRewind * 2];
 
-        InvokeRepeating("UpdateRewindPoints", 0, 0.2f);
+        InvokeRepeating("UpdateRewindPoints", 0, 0.1f);
         UpdateObjectPool();
         interactables = new List<Interactable>();
         _ammoRemaining = _equippedGun.maxAmmo;
@@ -216,9 +216,9 @@ public class Player : MonoBehaviour
             rb.velocity = Vector2.zero;
         }
 
-        if (rewindSavePoints[5] != null && rewindMarker != null)
+        if (rewindSavePoints[numberOfPeriodsToRewind] != null && rewindSavePoints[numberOfPeriodsToRewind].position != null && rewindMarker != null)
         {
-            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, rewindMarkerLerpFactor * Time.deltaTime);
+            rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[numberOfPeriodsToRewind].position, rewindMarkerLerpFactor * Time.deltaTime);
         }
 
         #region Cooldowns
@@ -337,27 +337,8 @@ public class Player : MonoBehaviour
 
     private void OnRewind()
     {
-        if (canRewind && !Dialogue.Instance.DialogueActive && currentRewindCooldownRemaining <= 0 && rewindSavePoints[5] != null)
+        if (canRewind && !Dialogue.Instance.DialogueActive && currentRewindCooldownRemaining <= 0 && rewindSavePoints[numberOfPeriodsToRewind] != null)
         {
-            /* *** OLD REWIND ***
-             * 
-             * // Set point if not set, otherwise travel to it
-            if (rewindSavePoint == null)
-            {
-                rewindSavePoint = new RewindSavePoint(transform.position, 0);
-                rewindMarker.transform.position = transform.position;
-                rewindMarker.SetActive(true);
-            }
-            else
-            {
-                transform.position = rewindSavePoint.position;
-                // <Set ammo count here>
-                rewindSavePoint = null;
-                rewindMarker.SetActive(false);
-                // We start the cooldown after the player teleports to the marker
-                currentRewindCooldownRemaining = _rewindCooldown;
-            }*/
-            //transform.position = rewindSavePoints[5].position;
             audio.PlayOneShot(rewind, 0.8F);
             transform.position = rewindMarker.transform.position;
             _ammoRemaining = rewindSavePoints[numberOfPeriodsToRewind].ammoCount;
@@ -392,19 +373,7 @@ public class Player : MonoBehaviour
 
         if (rewindMarker != null)
         {
-            if (rewindSavePoints[numberOfPeriodsToRewind] == null || currentRewindCooldownRemaining > 0)
-            {
-                rewindMarker.SetActive(false);
-            }
-            else
-            {
-                rewindMarker.SetActive(true);
-                //rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[5].position, 0.5f);
-                //rewindMarker.transform.position = rewindSavePoints[5].position;
-            }
-
-            // Set the marker to inactive for demo purposes
-            rewindMarker.SetActive(false);
+            rewindMarker.SetActive(rewindSavePoints[numberOfPeriodsToRewind] != null && currentRewindCooldownRemaining <= 0);
         }
     }
 
