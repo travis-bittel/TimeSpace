@@ -211,6 +211,10 @@ public class Player : MonoBehaviour
             rb.velocity = _velocity * _speed * recentShotModifier;
             //rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
         }
+        if (!_canMove)
+        {
+            rb.velocity = Vector2.zero;
+        }
 
         if (rewindSavePoints[5] != null && rewindMarker != null)
         {
