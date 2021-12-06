@@ -122,8 +122,11 @@ MonoBehaviour:
   damage: 2
   speed: 2.5
   hitPlayer: 1
+  hitEnemies: 0
+  hitObstacles: 1
   destroyWhenDeactivated: 1
-  finalShotDamage: 6
+  useFinalShot: 0
+  finalShotDamage: 2
   finalShotSpeed: 30
 --- !u!70 &3942002370106406250
 CapsuleCollider2D:

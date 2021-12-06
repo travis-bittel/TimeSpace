@@ -3,7 +3,14 @@ guid: a56120aee94730645a6261c62cfde857
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - dodge: {fileID: 8300000, guid: 1324c388d403cef4d8a6f16580e7eaed, type: 3}
+  - rewind: {fileID: 8300000, guid: 337a06a19d5c5c841a365da49abd7f73, type: 3}
+  - walking: {instanceID: 0}
+  - gun: {instanceID: 0}
+  - rb: {instanceID: 0}
+  - rewindMarker: {instanceID: 0}
+  - _equippedGun: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
