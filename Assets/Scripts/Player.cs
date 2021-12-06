@@ -21,6 +21,7 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioClip gun;
     [SerializeField] private AudioClip reload;
 
+    private Animator _an;
 
     private void Awake()
     {
@@ -184,6 +185,9 @@ public class Player : MonoBehaviour
             rb = GetComponent<Rigidbody2D>();
             Assert.IsNotNull(rb);
         }
+
+        _an = GetComponent<Animator>();
+
         Assert.IsNotNull("rewindMarker was null");
         Assert.IsTrue(_canMove, "canMove set to false at start");
         Assert.IsNotNull(_equippedGun, "equippedGun was null at start");
@@ -239,6 +243,16 @@ public class Player : MonoBehaviour
         {
             Shoot();
         }
+
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector2 direction = new Vector2(transform.position.x, transform.position.y) - mousePos;
+        direction.Normalize();
+
+        _an.SetFloat("dirX", direction.x);
+        _an.SetFloat("dirY", direction.y);
+
+        _an.SetBool("walking", Velocity != Vector2.zero);
+
     }
 
     /// <summary>
