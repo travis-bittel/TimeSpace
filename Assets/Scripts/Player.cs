@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Singleton MonoBehaviour representing the player.
@@ -203,7 +204,8 @@ public class Player : MonoBehaviour
             {
                 recentShotModifier = shootingSpeedMultiplier + (1 - shootingSpeedMultiplier) * (timeSinceLastShot * _equippedGun.shotsPerSecond);
             }
-            rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
+            rb.velocity = _velocity * _speed * recentShotModifier;
+            //rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
         }
 
         if (rewindSavePoints[5] != null && rewindMarker != null)
@@ -249,7 +251,7 @@ public class Player : MonoBehaviour
         PlayerHealthbarManager.Instance.UpdateHealthbar();
         if (_health <= 0)
         {
-            // Die
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 
