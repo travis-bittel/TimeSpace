@@ -121,6 +121,11 @@ MonoBehaviour:
   direction: {x: 0, y: 0}
   damage: 0.5
   speed: 20
+  hitPlayer: 0
+  hitEnemies: 1
+  hitObstacles: 1
+  destroyWhenDeactivated: 0
+  useFinalShot: 1
   finalShotDamage: 3
   finalShotSpeed: 30
 --- !u!70 &3979515517465886340

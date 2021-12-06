@@ -17,6 +17,7 @@ public class ShootingEnemy : Enemy
 
     [SerializeField] private float shotCooldown;
 
+    private AudioSource shoot;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -32,6 +33,7 @@ public class ShootingEnemy : Enemy
             }
         }
         #endregion
+        shoot = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -69,6 +71,8 @@ public class ShootingEnemy : Enemy
     private void InitializeProjectile()
     {
         GameObject obj = Instantiate(projectile);
+
+        shoot.Play();
 
         Vector2 direction = new Vector2(transform.position.x, transform.position.y) - new Vector2(Player.Instance.transform.position.x, Player.Instance.transform.position.y);
         Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);

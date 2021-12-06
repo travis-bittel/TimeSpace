@@ -7,6 +7,8 @@ public class DemoEnemy : Enemy
 {
     [SerializeField] private Rigidbody2D rb;
 
+    private NavMeshAgent2D _na;
+
     /// <summary>
     /// Holds the current state of the enemy (Moving, Attacking, etc.)
     /// As enemies have different state lists and actions corresponding to those states, 
@@ -32,6 +34,10 @@ public class DemoEnemy : Enemy
     public float AttackWindup { get { return _attackWindup; } }
     [SerializeField] private float _attackWindup;
 
+    [SerializeField] private float detectRange;
+
+    [SerializeField] private float attackDamage;
+
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -45,6 +51,7 @@ public class DemoEnemy : Enemy
                 Debug.LogError("No Rigidbody2D found on DemoEnemy");
             }
         }
+        TryGetComponent<NavMeshAgent2D>(out _na);
         #endregion
     }
 
@@ -73,11 +80,7 @@ public class DemoEnemy : Enemy
         yield return new WaitForSeconds(0.5f);
         if (PlayerInRange(_hitRange))
         {
-            Debug.Log("Hit!");
-        }
-        else
-        {
-            Debug.Log("Miss!");
+            Player.Instance.Damage(attackDamage);
         }
         if (!PlayerInRange(_swingRange))
         {
@@ -95,10 +98,15 @@ public class DemoEnemy : Enemy
     /// <returns>Nothing lmao</returns>
     private IEnumerator Move()
     { 
-        transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
-        if (PlayerInRange(_swingRange))
+        
+        // transform.position = Vector2.MoveTowards(transform.position, Player.Instance.transform.position, Time.deltaTime);
+        if (PlayerInRange(detectRange) || _health < _maxHealth)
         {
-            state = State.Attacking;
+            _na.destination = Player.Instance.transform.position;
+            if (PlayerInRange(_swingRange))
+            {
+                state = State.Attacking;
+            }
         }
         yield return null;
     }

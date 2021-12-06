@@ -11,11 +11,16 @@ public class Projectile : MonoBehaviour
     public float damage;
     public float speed;
 
+    [Header("Targetting")]
     public bool hitPlayer;
+    public bool hitEnemies;
+    public bool hitObstacles;
 
     public bool destroyWhenDeactivated;
 
     [Header("Final Projectile Properties")]
+    [Tooltip("Whether this projectile is affected by the player's ammo count (final shot)")]
+    public bool useFinalShot;
     public float finalShotDamage;
     public float finalShotSpeed;
 
@@ -37,7 +42,7 @@ public class Projectile : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         Assert.IsNotNull(rb);
 
-        if (Player.Instance.AmmoRemaining == 0)
+        if (useFinalShot && Player.Instance.AmmoRemaining == 0)
         {
             rb.velocity = direction * (-finalShotSpeed);
         }
@@ -47,7 +52,7 @@ public class Projectile : MonoBehaviour
         }
 
         // Temporary for visual effect, replace with different sprite later
-        if (Player.Instance.AmmoRemaining == 0)
+        if (useFinalShot && Player.Instance.AmmoRemaining == 0)
         {
             GetComponent<SpriteRenderer>().color = Color.red;
         }
@@ -64,9 +69,9 @@ public class Projectile : MonoBehaviour
             Player.Instance.Damage(damage);
             gameObject.SetActive(false);
         }
-        if (other.CompareTag("Enemy") && !hitPlayer)
+        if (other.CompareTag("Enemy") && hitEnemies)
         {
-            if (Player.Instance.AmmoRemaining == 0)
+            if (useFinalShot && Player.Instance.AmmoRemaining == 0)
             {
                 other.GetComponent<Entity>().Damage(finalShotDamage);
             }
@@ -76,7 +81,18 @@ public class Projectile : MonoBehaviour
             }
             gameObject.SetActive(false);
         }
-
+        if (other.CompareTag("Obstacle") && hitObstacles)
+        {
+            if (useFinalShot && Player.Instance.AmmoRemaining == 0)
+            {
+                other.GetComponent<Entity>().Damage(finalShotDamage);
+            }
+            else
+            {
+                other.GetComponent<Entity>().Damage(damage);
+            }
+            gameObject.SetActive(false);
+        }
         // Disable bullet when colliding with wall
         if (other.CompareTag("Room"))
         {
