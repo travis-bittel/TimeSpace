@@ -33,10 +33,14 @@ public class Dialogue : MonoBehaviour
     #endregion
 
     [SerializeField] private TextMeshProUGUI textComponent;
-    [SerializeField]  private List<string> lines;
+    [SerializeField]  private string[] lines;
     [SerializeField] private float textSpeed;
     [SerializeField]  private int index;
     [SerializeField] private bool _dialogueActive;
+    /// <summary>
+    /// We perform each of these actions when the current dialogue ends. These are passed in to DisplayDialogue().
+    /// </summary>
+    [SerializeField] private DialogueEndAction[] endActions;
     public bool DialogueActive { get => _dialogueActive; }
 
     // Start is called before the first frame update
@@ -46,7 +50,7 @@ public class Dialogue : MonoBehaviour
         //StartDialogue();
         textComponent = GetComponentInChildren<TextMeshProUGUI>();
         Assert.IsNotNull(textComponent, "textComponent was null for Dialogue");
-        if (lines.Count == 0)
+        if (lines.Length == 0)
         {
             gameObject.SetActive(false);
             _dialogueActive = false;
@@ -72,11 +76,26 @@ public class Dialogue : MonoBehaviour
     /// <param name="dialogue"></param>
     public void DisplayDialogue(params string[] dialogue)
     {
-        lines = new List<string>();
-        foreach (string str in dialogue)
+        DisplayDialogue(null, dialogue);
+    }
+
+    /// <summary>
+    /// Clear the current set of dialogue lines and start a new one. 
+    /// Also causes the dialogue box to become active if it was not already.
+    /// </summary>
+    /// <param name="endActions"></param>
+    /// <param name="dialogue"></param>
+    public void DisplayDialogue(DialogueEndAction[] endActions, params string[] dialogue)
+    {
+        lines = new string[dialogue.Length];
+        dialogue.CopyTo(lines, 0);
+
+        if (endActions != null)
         {
-            lines.Add(str);
+            this.endActions = new DialogueEndAction[endActions.Length];
+            endActions.CopyTo(this.endActions, 0);
         }
+
         gameObject.SetActive(true);
         textComponent.text = "";
         _dialogueActive = true;
@@ -88,12 +107,12 @@ public class Dialogue : MonoBehaviour
     /// </summary>
     public void NextLine()
     {
-        if (_dialogueActive && index < lines.Count)
+        if (_dialogueActive && index < lines.Length)
         {
             // If the current line is completely typed
             if (textComponent.text == lines[index])
             {
-                if (index < lines.Count - 1)
+                if (index < lines.Length - 1)
                 {
                     index++;
                     textComponent.text = string.Empty;
@@ -101,15 +120,34 @@ public class Dialogue : MonoBehaviour
                 }
                 else
                 {
+                    // End Dialogue
+                    foreach (DialogueEndAction action in endActions)
+                    {
+                        if (action != null)
+                        {
+                            action.gameObject.SetActive(action.active);
+                        }
+                    }
                     gameObject.SetActive(false);
                     _dialogueActive = false;
                 }
             }
             else
             {
+                // Fully type the line immediately
                 StopAllCoroutines();
                 textComponent.text = lines[index];
             }
         }
     }
+}
+
+/// <summary>
+/// Right now this only allows us to enable/disable objects. More might be added in the future.
+/// </summary>
+[System.Serializable]
+public class DialogueEndAction
+{
+    public GameObject gameObject;
+    public bool active;
 }

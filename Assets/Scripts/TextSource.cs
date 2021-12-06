@@ -26,6 +26,11 @@ public class TextSource : MonoBehaviour, Interactable
     [SerializeField] private int _interactionPriority;
     public int InteractionPriority { get => _interactionPriority;}
 
+    /// <summary>
+    /// Pairs of (GameObject, action) for doing stuff when dialogue ends. Right now this can only set objects active/inactive.
+    /// </summary>
+    [SerializeField] private DialogueEndAction[] onDialogueEnd;
+
     private void Start()
     {
         currentCooldown = cooldownPeriod;
@@ -51,7 +56,7 @@ public class TextSource : MonoBehaviour, Interactable
                 PopupTextHandler.Instance.UpdatePopupText(text[0], typePopupTextLine);
                 break;
             case Types.Dialogue:
-                Dialogue.Instance.DisplayDialogue(text);
+                Dialogue.Instance.DisplayDialogue(onDialogueEnd, text);
                 break;
         }
 

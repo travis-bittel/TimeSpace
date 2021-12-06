@@ -211,12 +211,12 @@ public class Player : MonoBehaviour
             rb.velocity = _velocity * _speed * recentShotModifier;
             //rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
         }
-        if (!_canMove)
+        if (!_canMove || Dialogue.Instance.DialogueActive)
         {
             rb.velocity = Vector2.zero;
         }
 
-        if (rewindSavePoints[numberOfPeriodsToRewind] != null && rewindSavePoints[numberOfPeriodsToRewind].position != null && rewindMarker != null)
+        if (canRewind && rewindSavePoints[numberOfPeriodsToRewind] != null && rewindSavePoints[numberOfPeriodsToRewind].position != null && rewindMarker != null)
         {
             rewindMarker.transform.position = Vector3.Lerp(rewindMarker.transform.position, rewindSavePoints[numberOfPeriodsToRewind].position, rewindMarkerLerpFactor * Time.deltaTime);
         }
