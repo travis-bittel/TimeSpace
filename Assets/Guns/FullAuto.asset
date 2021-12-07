@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: 
   maxAmmo: 20
-  reloadTime: 3
+  reloadTime: 2.25
   shotsPerSecond: 6
   fireContinuously: 1
   projectile: {fileID: 3723353938807580376, guid: f7c8d6f411d8ed945ae9be8718d83a53, type: 3}

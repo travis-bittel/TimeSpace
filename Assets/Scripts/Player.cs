@@ -216,6 +216,10 @@ public class Player : MonoBehaviour
         {
             rb.velocity = Vector2.zero;
         }
+        if (Dialogue.Instance.DialogueActive)
+        {
+            isFiring = false;
+        }
 
         if (canRewind && rewindSavePoints[numberOfPeriodsToRewind] != null && rewindSavePoints[numberOfPeriodsToRewind].position != null && rewindMarker != null)
         {

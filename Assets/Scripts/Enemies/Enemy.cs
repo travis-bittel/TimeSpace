@@ -20,6 +20,11 @@ public abstract class Enemy : Entity
         {
             GameManager.Instance.RegisterEnemy(this);
         }
+        Initialize();
+    }
+
+    public void Initialize()
+    {
         _health = _maxHealth;
         // This looks weird, but we want to support not having a healthbar on the enemy
         if (healthbar == null)
@@ -30,7 +35,6 @@ public abstract class Enemy : Entity
         {
             healthbar.InitializeHealthbar(_maxHealth, _health);
         }
-
     }
 
     protected void OnEnable()
@@ -43,5 +47,7 @@ public abstract class Enemy : Entity
         {
             GameManager.Instance.UnregisterEnemy(this);
         }
+        StopAllCoroutines();
+        actionInProgress = null;
     }
 }
