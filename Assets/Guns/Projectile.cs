@@ -35,7 +35,11 @@ public class Projectile : MonoBehaviour
 
     public void Initialize(Vector2 position, Quaternion rotation, Vector2 direction)
     {
-        transform.SetPositionAndRotation(position, rotation);
+        // We need to adjust the rotation by 90 because of the sprite shape
+        Vector3 rot = rotation.eulerAngles;
+        rot += new Vector3(0, 0, 90);
+
+        transform.SetPositionAndRotation(position, Quaternion.Euler(rot));
         this.direction = direction;
         gameObject.SetActive(true);
 

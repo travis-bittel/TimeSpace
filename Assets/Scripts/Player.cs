@@ -209,6 +209,7 @@ public class Player : MonoBehaviour
                 recentShotModifier = shootingSpeedMultiplier + (1 - shootingSpeedMultiplier) * (timeSinceLastShot * _equippedGun.shotsPerSecond);
             }
             rb.velocity = _velocity * _speed * recentShotModifier;
+            //Debug.Log(rb.velocity);
             //rb.position += _velocity * _speed * recentShotModifier * Time.deltaTime;
         }
         if (!_canMove || Dialogue.Instance.DialogueActive)
@@ -289,7 +290,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnDodgeRoll()
+    private void OnDodgeRoll(InputValue value)
     {
         if (!Dialogue.Instance.DialogueActive && currentDodgeRollCooldownRemaining <= 0)
         {
@@ -300,6 +301,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator DodgeRoll()
     {
+        Debug.Log("CALLED");
         storedVelocity = _velocity;
         _isInvulnerable = true;
         _isRolling = true;
@@ -333,6 +335,7 @@ public class Player : MonoBehaviour
         _isRolling = false;
         // We start the cooldown after the roll is complete
         currentDodgeRollCooldownRemaining = _dodgeRollCooldown;
+        Debug.Log(_velocity);
     }
 
     private void OnRewind()
@@ -373,7 +376,7 @@ public class Player : MonoBehaviour
 
         if (rewindMarker != null)
         {
-            rewindMarker.SetActive(rewindSavePoints[numberOfPeriodsToRewind] != null && currentRewindCooldownRemaining <= 0);
+            rewindMarker.SetActive(canRewind && rewindSavePoints[numberOfPeriodsToRewind] != null && currentRewindCooldownRemaining <= 0);
         }
     }
 

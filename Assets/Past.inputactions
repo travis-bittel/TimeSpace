@@ -27,7 +27,7 @@
                     "id": "e7b57c08-0c68-4b2b-aec5-ad0fef8bcf5f",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press"
                 },
                 {
                     "name": "Rewind",

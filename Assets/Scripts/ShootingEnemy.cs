@@ -52,7 +52,7 @@ public class ShootingEnemy : Enemy
     }
 
     /// <summary>
-    /// Action method that does a windup, then an attack which hits the player if they are within hitRange.
+    /// Action method that fires a 3-round burst of projectiles.
     /// </summary>
     /// <returns></returns>
     private IEnumerator Shoot()
@@ -75,6 +75,7 @@ public class ShootingEnemy : Enemy
         shoot.Play();
 
         Vector2 direction = new Vector2(transform.position.x, transform.position.y) - new Vector2(Player.Instance.transform.position.x, Player.Instance.transform.position.y);
+        direction.Normalize();
         Quaternion rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x) + 90);
         obj.GetComponent<Projectile>().Initialize(transform.position, rotation, direction);
     }
